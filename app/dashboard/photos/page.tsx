@@ -1,0 +1,3 @@
+'use client';
+import { useDashboardData } from '@/components/DataClient';
+export default function Photos(){ const {data,error,loading}=useDashboardData(); if(loading)return <p>Loading...</p>; if(error)return <p className="error">{error}</p>; return <><h1>Site Photos</h1><div className="photo-grid section">{data.photos.map((p:any,i:number)=><div className="photo-card" key={i}>{p['Photo URL']?<img src={p['Photo URL']} alt="Site photo" style={{width:'100%',height:180,objectFit:'cover'}}/>:<div className="photo-placeholder">No Photo URL</div>}<div style={{padding:14}}><b>{p.Phase || p.Title || 'Site Photo'}</b><p className="small">{p.Date || p['Photo Date'] || ''}</p><p className="small">{p.Notes || p.Description || ''}</p></div></div>)}</div></> }

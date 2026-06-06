@@ -1,0 +1,3 @@
+'use client';
+import { useDashboardData } from '@/components/DataClient';
+export default function Risks(){ const {data,error,loading}=useDashboardData(); if(loading)return <p>Loading...</p>; if(error)return <p className="error">{error}</p>; return <><h1>Issues & Risks</h1><div className="table-wrap section"><table><thead><tr><th>ID</th><th>Description</th><th>Impact Summary</th><th>Probability</th><th>Impact</th><th>Owner</th><th>Mitigation</th><th>Target</th></tr></thead><tbody>{data.risks.map((r:any,i:number)=><tr key={i}><td>{r['Risk ID']}</td><td>{r['Risk Description']}</td><td>{r['Impact Summary']}</td><td>{r.Probability}</td><td>{r.Impact}</td><td>{r['Risk Owner']}</td><td>{r.Mitigation}</td><td>{r['Target Date']}</td></tr>)}</tbody></table></div></> }

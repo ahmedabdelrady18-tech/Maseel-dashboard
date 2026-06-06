@@ -1,0 +1,3 @@
+'use client';
+import { pct, useDashboardData } from '@/components/DataClient';
+export default function Progress(){ const {data,error,loading}=useDashboardData(); if(loading)return <p>Loading...</p>; if(error)return <p className="error">{error}</p>; return <><h1>Progress</h1><div className="table-wrap section"><table><thead><tr><th>Phase</th><th>Planned</th><th>Actual</th><th>Variance</th><th>SPI</th></tr></thead><tbody>{data.phases.map((r:any)=><tr key={r.Phase}><td>{r.Phase}</td><td>{pct(r['Planned %'])}</td><td>{pct(r['Actual %'])}</td><td className={Number(r.Variance)<0?'status-bad':'status-good'}>{pct(r.Variance)}</td><td>{Number(r.SPI||0).toFixed(2)}</td></tr>)}</tbody></table></div></> }
