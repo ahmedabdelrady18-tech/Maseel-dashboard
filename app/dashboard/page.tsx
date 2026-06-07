@@ -12,6 +12,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Area,
+  AreaChart,
   LabelList,
   ReferenceLine,  
 } from 'recharts';
@@ -190,6 +192,92 @@ const chartData = (data || []).map((x: any) => ({
         </ComposedChart>
       </ResponsiveContainer>
     </>
+  );
+};
+const SPITrend = ({ data }: any) => {
+  const formatMonth = (value: any) => {
+    const text = String(value || '');
+
+    if (text.includes('-')) {
+      const parts = text.split('-');
+
+      if (parts.length === 3) {
+        return `${parts[1]}-${parts[2]}`;
+      }
+    }
+
+    return text;
+  };
+
+  const chartData = (data || [])
+    .filter((row: any) => row.spi !== null && row.spi !== undefined && row.spi !== '')
+    .map((row: any) => ({
+      month: formatMonth(row.month),
+      spi: Number(row.spi || 0),
+    }));
+
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <AreaChart
+        data={chartData}
+        margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" stroke="#16365f" />
+
+        <XAxis
+          dataKey="month"
+          stroke="#94a3b8"
+          tick={{ fontSize: 11 }}
+        />
+
+        <YAxis
+          domain={[0, 1.3]}
+          stroke="#94a3b8"
+          tick={{ fontSize: 11 }}
+        />
+
+        <Tooltip
+          formatter={(v: any) => Number(v).toFixed(2)}
+          contentStyle={{
+            background: '#08172c',
+            border: '1px solid #1e3a5f',
+            borderRadius: 10,
+            color: '#fff',
+          }}
+        />
+
+        <ReferenceLine
+          y={1}
+          stroke="#22c55e"
+          strokeWidth={2}
+          label={{ value: 'Target 1.00', fill: '#22c55e' }}
+        />
+
+        <ReferenceLine
+          y={0.9}
+          stroke="#facc15"
+          strokeDasharray="5 5"
+        />
+
+        <Area
+          type="monotone"
+          dataKey="spi"
+          stroke="#4FC3F7"
+          fill="#4FC3F7"
+          fillOpacity={0.25}
+          strokeWidth={4}
+          dot={{ r: 4 }}
+          name="SPI"
+        >
+          <LabelList
+            dataKey="spi"
+            position="top"
+            formatter={(v: any) => Number(v).toFixed(2)}
+            fill="#4FC3F7"
+          />
+        </Area>
+      </AreaChart>
+    </ResponsiveContainer>
   );
 };
 export default function Dashboard() {
@@ -783,6 +871,24 @@ export default function Dashboard() {
               </span>
             </div>
           ))}
+          <div
+  style={{
+    marginTop: 20,
+    borderTop: '1px solid rgba(255,255,255,.08)',
+    paddingTop: 15,
+  }}
+>
+  <h3
+    style={{
+      marginTop: 0,
+      color: '#4FC3F7',
+    }}
+  >
+    SPI Trend
+  </h3>
+
+  <SPITrend data={data.spiTrend} />
+</div>
         </div>
       </div>
 

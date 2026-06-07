@@ -99,7 +99,36 @@ export function getDashboardData() {
   const delays = sheetRows(workbook, 'Delays');
   const risks = sheetRows(workbook, 'Issues_Risks');
   const photos = sheetRows(workbook, 'Site_Photos');
-  const spiRaw = sheetRows(workbook, 'SPI Trend');
+  const spiSheet = workbook.Sheets['SPI Trend'];
+let spiTrend: any[] = [];
+
+if (spiSheet) {
+  const rows: any[][] = XLSX.utils.sheet_to_json(spiSheet, {
+    header: 1,
+    defval: '',
+    raw: true,
+  });
+
+  const headerIndex = rows.findIndex(
+    (row) => String(row[0]).trim().toLowerCase() === 'month'
+  );
+
+  if (headerIndex !== -1) {
+    const months = rows[headerIndex] || [];
+    const spi = rows[headerIndex + 1] || [];
+
+    spiTrend = months
+      .map((month: any, index: number) => {
+        if (index === 0 || month === '') return null;
+
+        return {
+          month: excelDateToISO(month),
+          spi: spi[index] === '' ? null : Number(spi[index] || 0),
+        };
+      })
+      .filter(Boolean);
+  }
+}
   const sCurve = readSCurve(workbook);
 
   return {
@@ -110,7 +139,7 @@ export function getDashboardData() {
     delays,
     risks,
     photos,
-    spiTrend: spiRaw,
+    spiTrend: spiTrend,
     sCurve,
     updatedAt: new Date().toISOString(),
   };
