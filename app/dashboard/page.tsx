@@ -3,7 +3,8 @@
 import { pct, useDashboardData } from '@/components/DataClient';
 import { useState, type CSSProperties } from 'react';
 import {
-  LineChart,
+  ComposedChart,
+  Bar,
   Line,
   XAxis,
   YAxis,
@@ -11,63 +12,118 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList,
+  ReferenceLine,  
 } from 'recharts';
 const SCurve = ({ data }: any) => {
   const chartData = (data || []).map((x: any) => ({
     month: String(x.month || '').slice(0, 7),
+
     planned: Number(x.planned || 0) * 100,
     actual: x.actual === null ? null : Number(x.actual || 0) * 100,
+
     cumPlanned: Number(x.cumPlanned || 0) * 100,
     cumActual: x.cumActual === null ? null : Number(x.cumActual || 0) * 100,
   }));
 
+  const currentMonth =
+    chartData.find((x: any) => x.actual !== null)?.month ||
+    chartData[0]?.month;
+
   return (
-    <ResponsiveContainer width="100%" height={320}>
-      <LineChart data={chartData} margin={{ top: 10, right: 25, left: 0, bottom: 10 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f" />
-        <XAxis dataKey="month" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-        <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v}%`} />
-        <Tooltip formatter={(value: any) => `${Number(value).toFixed(2)}%`} />
+    <ResponsiveContainer width="100%" height={360}>
+      <ComposedChart
+        data={chartData}
+        margin={{ top: 20, right: 30, left: 10, bottom: 10 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" stroke="#16365f" />
+
+        <XAxis
+          dataKey="month"
+          stroke="#94a3b8"
+          tick={{ fontSize: 11 }}
+        />
+
+        <YAxis
+          stroke="#94a3b8"
+          tickFormatter={(v) => `${v}%`}
+        />
+
+        <Tooltip
+          contentStyle={{
+            background: '#08172c',
+            border: '1px solid #1e3a5f',
+            borderRadius: 10,
+            color: '#fff',
+          }}
+          formatter={(value: any) =>
+            `${Number(value).toFixed(2)}%`
+          }
+        />
+
         <Legend />
 
-        <Line
-          type="monotone"
-          dataKey="planned"
-          stroke="#38bdf8"
+        <ReferenceLine
+          x={currentMonth}
+          stroke="#facc15"
           strokeWidth={2}
-          dot={false}
+          strokeDasharray="6 6"
+          label={{
+            value: 'Today',
+            fill: '#facc15',
+            position: 'top',
+          }}
+        />
+
+        <Bar
+          dataKey="planned"
+          fill="#38bdf8"
+          opacity={0.35}
           name="Monthly Planned %"
         />
 
-        <Line
-          type="monotone"
+        <Bar
           dataKey="actual"
-          stroke="#22c55e"
-          strokeWidth={2}
-          dot={false}
-          connectNulls={false}
+          fill="#22c55e"
+          opacity={0.60}
           name="Monthly Actual %"
         />
 
         <Line
           type="monotone"
           dataKey="cumPlanned"
-          stroke="#ef4444"
+          stroke="#4FC3F7"
           strokeWidth={4}
           dot={false}
-          name="CUM Planned %"
-        />
+          name="Cumulative Planned %"
+        >
+          <LabelList
+            dataKey="cumPlanned"
+            position="top"
+            formatter={(v: any) => `${v.toFixed(0)}%`}
+            fill="#4FC3F7"
+          />
+        </Line>
 
         <Line
           type="monotone"
           dataKey="cumActual"
-          stroke="#a855f7"
+          stroke="#22C55E"
           strokeWidth={4}
-          dot={false}
+          dot={{ r: 4 }}
           connectNulls={false}
-          name="CUM Actual %"
-        />
-      </LineChart>
+          name="Cumulative Actual %"
+        >
+          <LabelList
+            dataKey="cumActual"
+            position="top"
+            formatter={(v: any) =>
+              v === null ? '' : `${v.toFixed(0)}%`
+            }
+            fill="#22C55E"
+          />
+        </Line>
+      </ComposedChart>
     </ResponsiveContainer>
   );
 };
