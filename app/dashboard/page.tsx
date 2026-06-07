@@ -2,7 +2,75 @@
 
 import { pct, useDashboardData } from '@/components/DataClient';
 import { useState, type CSSProperties } from 'react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+const SCurve = ({ data }: any) => {
+  const chartData = (data || []).map((x: any) => ({
+    month: String(x.month || '').slice(0, 7),
+    planned: Number(x.planned || 0) * 100,
+    actual: x.actual === null ? null : Number(x.actual || 0) * 100,
+    cumPlanned: Number(x.cumPlanned || 0) * 100,
+    cumActual: x.cumActual === null ? null : Number(x.cumActual || 0) * 100,
+  }));
 
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <LineChart data={chartData} margin={{ top: 10, right: 25, left: 0, bottom: 10 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f" />
+        <XAxis dataKey="month" stroke="#94a3b8" tick={{ fontSize: 11 }} />
+        <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v}%`} />
+        <Tooltip formatter={(value: any) => `${Number(value).toFixed(2)}%`} />
+        <Legend />
+
+        <Line
+          type="monotone"
+          dataKey="planned"
+          stroke="#38bdf8"
+          strokeWidth={2}
+          dot={false}
+          name="Monthly Planned %"
+        />
+
+        <Line
+          type="monotone"
+          dataKey="actual"
+          stroke="#22c55e"
+          strokeWidth={2}
+          dot={false}
+          connectNulls={false}
+          name="Monthly Actual %"
+        />
+
+        <Line
+          type="monotone"
+          dataKey="cumPlanned"
+          stroke="#ef4444"
+          strokeWidth={4}
+          dot={false}
+          name="CUM Planned %"
+        />
+
+        <Line
+          type="monotone"
+          dataKey="cumActual"
+          stroke="#a855f7"
+          strokeWidth={4}
+          dot={false}
+          connectNulls={false}
+          name="CUM Actual %"
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
 export default function Dashboard() {
   const { data, error, loading } = useDashboardData();
   const [selectedPhase, setSelectedPhase] = useState<any>(null);
@@ -563,7 +631,7 @@ export default function Dashboard() {
       <div className="section" style={{ display: 'grid', gridTemplateColumns: '1.25fr .75fr', gap: 12 }}>
         <div className="card" style={glassCard}>
           <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>S-Curve Overview</h3>
-          <Scurve />
+          <SCurve data={data.sCurve} />
         </div>
 
         <div className="card" style={glassCard}>
