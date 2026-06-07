@@ -16,8 +16,22 @@ import {
   ReferenceLine,  
 } from 'recharts';
 const SCurve = ({ data }: any) => {
-  const chartData = (data || []).map((x: any) => ({
-    month: String(x.month || '').slice(0, 7),
+  const formatMonth = (value: any) => {
+  const text = String(value || '');
+
+  if (text.includes('-')) {
+    const parts = text.split('-');
+
+    if (parts.length === 3) {
+      return `${parts[1]}-${parts[2]}`;
+    }
+  }
+
+  return text;
+};
+
+const chartData = (data || []).map((x: any) => ({
+  month: formatMonth(x.month),
 
     planned: Number(x.planned || 0) * 100,
     actual: x.actual === null ? null : Number(x.actual || 0) * 100,
@@ -26,105 +40,156 @@ const SCurve = ({ data }: any) => {
     cumActual: x.cumActual === null ? null : Number(x.cumActual || 0) * 100,
   }));
 
-  const currentMonth =
-    chartData.find((x: any) => x.actual !== null)?.month ||
-    chartData[0]?.month;
+  const lastActualPoint = [...chartData]
+    .reverse()
+    .find((x: any) => x.cumActual !== null);
+
+  const lastPlannedPoint = chartData.find(
+    (x: any) => x.month === lastActualPoint?.month
+  );
+
+  const sCurveSPI =
+    lastActualPoint && lastPlannedPoint && lastPlannedPoint.cumPlanned > 0
+      ? lastActualPoint.cumActual / lastPlannedPoint.cumPlanned
+      : 0;
+
+  const sCurveVariance =
+    lastActualPoint && lastPlannedPoint
+      ? lastActualPoint.cumActual - lastPlannedPoint.cumPlanned
+      : 0;
+
+  const sCurveSPIColor =
+    sCurveSPI >= 1 ? '#22c55e' : sCurveSPI >= 0.9 ? '#facc15' : '#ef4444';
+
+  const sCurveStatus =
+    sCurveSPI >= 1 ? 'ON TRACK' : sCurveSPI >= 0.9 ? 'WARNING' : 'CRITICAL';
+
+  const currentMonth = lastActualPoint?.month || chartData[0]?.month;
 
   return (
-    <ResponsiveContainer width="100%" height={360}>
-      <ComposedChart
-        data={chartData}
-        margin={{ top: 20, right: 30, left: 10, bottom: 10 }}
+    <>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 10,
+          marginBottom: 12,
+        }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#16365f" />
+        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+          <div className="kpi-title">S-Curve SPI</div>
+          <div className="kpi-value" style={{ fontSize: 24, color: sCurveSPIColor }}>
+            {sCurveSPI.toFixed(2)}
+          </div>
+        </div>
 
-        <XAxis
-          dataKey="month"
-          stroke="#94a3b8"
-          tick={{ fontSize: 11 }}
-        />
+        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+          <div className="kpi-title">S-Curve Status</div>
+          <div className="kpi-value" style={{ fontSize: 22, color: sCurveSPIColor }}>
+            {sCurveStatus}
+          </div>
+        </div>
 
-        <YAxis
-          stroke="#94a3b8"
-          tickFormatter={(v) => `${v}%`}
-        />
+        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+          <div className="kpi-title">S-Curve Variance</div>
+          <div
+            className="kpi-value"
+            style={{
+              fontSize: 22,
+              color: sCurveVariance >= 0 ? '#22c55e' : '#ef4444',
+            }}
+          >
+            {sCurveVariance.toFixed(2)}%
+          </div>
+        </div>
 
-        <Tooltip
-          contentStyle={{
-            background: '#08172c',
-            border: '1px solid #1e3a5f',
-            borderRadius: 10,
-            color: '#fff',
-          }}
-          formatter={(value: any) =>
-            `${Number(value).toFixed(2)}%`
-          }
-        />
+        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+          <div className="kpi-title">Latest Update</div>
+          <div className="kpi-value" style={{ fontSize: 22, color: '#4FC3F7' }}>
+            {currentMonth || 'N/A'}
+          </div>
+        </div>
+      </div>
 
-        <Legend />
-
-        <ReferenceLine
-          x={currentMonth}
-          stroke="#facc15"
-          strokeWidth={2}
-          strokeDasharray="6 6"
-          label={{
-            value: 'Today',
-            fill: '#facc15',
-            position: 'top',
-          }}
-        />
-
-        <Bar
-          dataKey="planned"
-          fill="#38bdf8"
-          opacity={0.35}
-          name="Monthly Planned %"
-        />
-
-        <Bar
-          dataKey="actual"
-          fill="#22c55e"
-          opacity={0.60}
-          name="Monthly Actual %"
-        />
-
-        <Line
-          type="monotone"
-          dataKey="cumPlanned"
-          stroke="#4FC3F7"
-          strokeWidth={4}
-          dot={false}
-          name="Cumulative Planned %"
+      <ResponsiveContainer width="100%" height={360}>
+        <ComposedChart
+          data={chartData}
+          margin={{ top: 25, right: 30, left: 10, bottom: 10 }}
         >
-          <LabelList
+          <CartesianGrid strokeDasharray="3 3" stroke="#16365f" />
+
+          <XAxis dataKey="month" stroke="#94a3b8" tick={{ fontSize: 11 }} />
+
+          <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v}%`} />
+
+          <Tooltip
+            contentStyle={{
+              background: '#08172c',
+              border: '1px solid #1e3a5f',
+              borderRadius: 10,
+              color: '#fff',
+            }}
+            formatter={(value: any, name: any) => [
+              `${Number(value).toFixed(2)}%`,
+              name,
+            ]}
+          />
+
+          <Legend />
+
+          <ReferenceLine
+            x={currentMonth}
+            stroke="#facc15"
+            strokeWidth={2}
+            strokeDasharray="6 6"
+            label={{
+              value: `SPI ${sCurveSPI.toFixed(2)} | ${sCurveStatus}`,
+              fill: sCurveSPIColor,
+              position: 'top',
+            }}
+          />
+
+          <Bar dataKey="planned" fill="#38bdf8" opacity={0.35} name="Monthly Planned %" />
+
+          <Bar dataKey="actual" fill="#22c55e" opacity={0.65} name="Monthly Actual %" />
+
+          <Line
+            type="monotone"
             dataKey="cumPlanned"
-            position="top"
-            formatter={(v: any) => `${v.toFixed(0)}%`}
-            fill="#4FC3F7"
-          />
-        </Line>
+            stroke="#4FC3F7"
+            strokeWidth={4}
+            dot={false}
+            name="Cumulative Planned %"
+          >
+            <LabelList
+              dataKey="cumPlanned"
+              position="top"
+              formatter={(v: any) => `${Number(v).toFixed(0)}%`}
+              fill="#4FC3F7"
+            />
+          </Line>
 
-        <Line
-          type="monotone"
-          dataKey="cumActual"
-          stroke="#22C55E"
-          strokeWidth={4}
-          dot={{ r: 4 }}
-          connectNulls={false}
-          name="Cumulative Actual %"
-        >
-          <LabelList
+          <Line
+            type="monotone"
             dataKey="cumActual"
-            position="top"
-            formatter={(v: any) =>
-              v === null ? '' : `${v.toFixed(0)}%`
-            }
-            fill="#22C55E"
-          />
-        </Line>
-      </ComposedChart>
-    </ResponsiveContainer>
+            stroke="#22C55E"
+            strokeWidth={4}
+            dot={{ r: 4 }}
+            connectNulls={false}
+            name="Cumulative Actual %"
+          >
+            <LabelList
+              dataKey="cumActual"
+              position="top"
+              formatter={(v: any) =>
+                v === null || v === undefined ? '' : `${Number(v).toFixed(0)}%`
+              }
+              fill="#22C55E"
+            />
+          </Line>
+        </ComposedChart>
+      </ResponsiveContainer>
+    </>
   );
 };
 export default function Dashboard() {
