@@ -70,6 +70,7 @@ export default function Activities() {
   );
 
   const rows = searchedRows.slice(0, 300);
+  const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
   return (
     <>
@@ -167,71 +168,50 @@ export default function Activities() {
         <div className="activities-table-scroll">
           <table>
             <thead>
-              <tr>
-                <th>ID</th>
-                <th>Activity Name</th>
-                <th>Phase</th>
-                <th>Status</th>
-                <th>BL Start</th>
-                <th>BL Finish</th>
-                <th>Start</th>
-                <th>Finish</th>
-                <th>Schedule %</th>
-                <th>Performance %</th>
-                <th>Total Float</th>
-                <th>Critical</th>
-              </tr>
-            </thead>
+  <tr>
+    {columns.map((col) => (
+      <th key={col}>{col}</th>
+    ))}
+  </tr>
+</thead>
 
             <tbody>
-              {rows.map((r: any, i: number) => (
-                <tr key={i}>
-                  <td>{formatValue(r['Activity ID'])}</td>
-                  <td>{formatValue(r['Activity Name'])}</td>
-
-                  <td>
-                    <span className="phase-pill">{formatValue(r['02- Con.Phase'])}</span>
-                  </td>
-
-                  <td>
-                    <span
-                      className={
-                        String(r['Activity Status']).toLowerCase() === 'completed'
-                          ? 'status-badge-completed'
-                          : String(r['Activity Status']).toLowerCase() === 'in progress'
-                          ? 'status-badge-progress'
-                          : 'status-badge-notstarted'
-                      }
-                    >
-                      {formatValue(r['Activity Status'])}
-                    </span>
-                  </td>
-
-                  <td>{formatValue(r['BL Project Start'])}</td>
-                  <td>{formatValue(r['BL Project Finish'])}</td>
-                  <td>{formatValue(r.Start)}</td>
-                  <td>{formatValue(r.Finish)}</td>
-                  <td>{formatValue(r['Schedule % Complete'])}</td>
-                  <td>{formatValue(r['Performance % Complete'])}</td>
-
-                  <td className={Number(r['Total Float']) < 0 ? 'status-bad' : ''}>
-                    {formatValue(r['Total Float'])}
-                  </td>
-
-                  <td>
-                    <span
-                      className={
-                        String(r['Critical']).toLowerCase() === 'yes'
-                          ? 'critical-badge'
-                          : 'normal-badge'
-                      }
-                    >
-                      {formatValue(r['Critical'])}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {rows.map((row: any, i: number) => (
+    <tr key={i}>
+      {columns.map((col) => (
+        <td key={col} className={col === 'Total Float' && Number(row[col]) < 0 ? 'status-bad' : ''}>
+  {col === '02- Con.Phase' ? (
+    <span className="phase-pill">{formatValue(row[col])}</span>
+  ) : col === 'Activity Status' ? (
+    <span
+      className={
+        String(row[col]).toLowerCase() === 'completed'
+          ? 'status-badge-completed'
+          : String(row[col]).toLowerCase() === 'in progress'
+          ? 'status-badge-progress'
+          : 'status-badge-notstarted'
+      }
+    >
+      {formatValue(row[col])}
+    </span>
+  ) : col === 'Critical' ? (
+    <span
+      className={
+        String(row[col]).toLowerCase() === 'yes'
+          ? 'critical-badge'
+          : 'normal-badge'
+      }
+    >
+      {formatValue(row[col])}
+    </span>
+  ) : (
+    formatValue(row[col])
+  )}
+</td>
+      ))}
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
       </div>

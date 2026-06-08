@@ -592,3 +592,119 @@ td {
   outline: none;
   border-color: #38bdf8;
 }
+.risk-badge-high,
+.risk-badge-medium,
+.risk-badge-low {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.risk-badge-high {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ff6b6b;
+}
+
+.risk-badge-medium {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.risk-badge-low {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+}
+.risks-table-wrap {
+  overflow-x: visible;
+}
+
+.risks-table-wrap table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.risks-table-wrap th,
+.risks-table-wrap td {
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top;
+}
+
+.risks-table-wrap th:nth-child(1),
+.risks-table-wrap td:nth-child(1) {
+  width: 70px;
+}
+
+.risks-table-wrap th:nth-child(2),
+.risks-table-wrap td:nth-child(2) {
+  width: 220px;
+}
+
+.risks-table-wrap th:nth-child(3),
+.risks-table-wrap td:nth-child(3) {
+  width: 300px;
+}
+
+.risks-table-wrap th:nth-child(8),
+.risks-table-wrap td:nth-child(8) {
+  width: 320px;
+}
+.risks-table-wrap {
+  overflow: visible !important;
+}
+
+.risks-table-wrap table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
+}
+
+.risks-table-wrap th,
+.risks-table-wrap td {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  vertical-align: top;
+}
+
+/* Column widths */
+.risks-table-wrap th:nth-child(1),
+.risks-table-wrap td:nth-child(1) {
+  width: 70px;
+}
+
+.risks-table-wrap th:nth-child(2),
+.risks-table-wrap td:nth-child(2) {
+  width: 230px;
+}
+
+.risks-table-wrap th:nth-child(3),
+.risks-table-wrap td:nth-child(3) {
+  width: 360px;
+}
+
+.risks-table-wrap th:nth-child(4),
+.risks-table-wrap td:nth-child(4),
+.risks-table-wrap th:nth-child(5),
+.risks-table-wrap td:nth-child(5),
+.risks-table-wrap th:nth-child(6),
+.risks-table-wrap td:nth-child(6),
+.risks-table-wrap th:nth-child(7),
+.risks-table-wrap td:nth-child(7) {
+  width: 110px;
+}
+
+.risks-table-wrap th:nth-child(8),
+.risks-table-wrap td:nth-child(8) {
+  width: 360px;
+}
+
+.risks-table-wrap th:nth-child(9),
+.risks-table-wrap td:nth-child(9) {
+  width: 130px;
+}

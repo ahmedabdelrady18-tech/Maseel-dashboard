@@ -44,7 +44,18 @@ function sheetRows(workbook: XLSX.WorkBook, sheetName: string) {
   const sheet = workbook.Sheets[sheetName];
   if (!sheet) return [];
 
-  return XLSX.utils.sheet_to_json(sheet, { defval: '' }).map(normalizeRow);
+  return XLSX.utils
+  .sheet_to_json(sheet, { defval: '' })
+  .map(normalizeRow)
+  .map((row: any) => {
+    Object.keys(row).forEach((key) => {
+      if (key.startsWith('__EMPTY')) {
+        delete row[key];
+      }
+    });
+
+    return row;
+  });
 }
 
 function readSCurve(workbook: XLSX.WorkBook) {
