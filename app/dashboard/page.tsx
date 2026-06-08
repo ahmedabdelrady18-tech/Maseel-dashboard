@@ -336,23 +336,13 @@ export default function Dashboard() {
     [...phases].sort((a: any, b: any) => Number(a.SPI || 0) - Number(b.SPI || 0))[0] ||
     null;
 
-  const healthScore = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(
-        overallSpi * 55 +
-          actualProgress * 25 +
-          Math.max(0, 1 + varianceProgress) * 20
-      )
-    )
-  );
+  const healthScore = Math.max(0, Math.min(100, Math.round(overallSpi * 100)));
 
   const healthColor =
-    healthScore >= 75 ? '#22c55e' : healthScore >= 55 ? '#facc15' : '#ef4444';
+    healthScore >= 95 ? '#22c55e' : healthScore >= 80 ? '#facc15' : '#ef4444';
 
   const projectHealth =
-    healthScore >= 75 ? 'HEALTHY' : healthScore >= 55 ? 'WATCH' : 'CRITICAL';
+    healthScore >= 95 ? 'HEALTHY' : healthScore >= 80 ? 'WATCH' : 'CRITICAL';
 
   const glassCard: CSSProperties = {
     padding: 14,
@@ -609,17 +599,37 @@ export default function Dashboard() {
               {p['Project Name'] || 'MASEEL MIXED-USE DEVELOPMENT'}
             </h1>
             <div className="small">
-              Live Excel Dashboard | Client: {p.Client} | Consultant: {p.Consultant}
+              Contractor AlEnshaia | Client: {p.Client} | Consultant: {p.Consultant}
             </div>
           </div>
 
           <ExecCard
-            title="Project Health"
-            value={`${healthScore}/100`}
-            icon="🩺"
-            color={healthColor}
-            trend={projectHealth}
-          />
+  title="Project Health"
+  value={`${healthScore}/100`}
+  icon={
+    <div
+      style={{
+        width: 46,
+        height: 46,
+        borderRadius: '50%',
+        background: `conic-gradient(${healthColor} ${healthScore}%, #26364a 0)`,
+        display: 'grid',
+        placeItems: 'center',
+      }}
+    >
+      <div
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          background: '#111827',
+        }}
+      />
+    </div>
+  }
+  color={healthColor}
+  trend={projectHealth}
+/>
 
           <ExecCard
             title="Overall SPI"
