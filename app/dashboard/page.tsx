@@ -927,18 +927,92 @@ export default function Dashboard() {
         <ExecCard title="Remaining Time" value={`${o['Remaining Time']} Days`} icon="⌛" color="#38bdf8" trend="To completion" />
       </div>
 
-      <div className="card section">
-        <h2>Phase Progress</h2>
-        {phases.map((ph: any) => (
-          <div className="progress-row" key={ph.Phase}>
-            <b>{ph.Phase}</b>
-            <div className="bar">
-              <span style={{ width: pct(ph['Actual %']) }} />
-            </div>
-            <span>{pct(ph['Actual %'])}</span>
+   <div className="card section">
+  <h2>Phase Progress</h2>
+
+  {phases.map((ph: any) => {
+    const actual = Number(ph['Actual %'] || 0);
+    const planned = Number(ph['Planned %'] || 0);
+
+    const ratio =
+      planned > 0 ? Math.min((actual / planned) * 100, 100) : 0;
+
+    const color =
+      ratio >= 95
+        ? '#22c55e'
+        : ratio >= 80
+        ? '#facc15'
+        : '#ef4444';
+
+    return (
+      <div
+        key={ph.Phase}
+        style={{
+          marginTop: 8,
+          paddingBottom: 8,
+          borderBottom: '1px solid rgba(255,255,255,.08)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 6,
+          }}
+        >
+          <strong
+            style={{
+              fontSize: 14,
+              color: '#fff',
+            }}
+          >
+            {ph.Phase}
+          </strong>
+
+          <div
+            style={{
+              fontSize: 12,
+              color: '#cbd5e1',
+            }}
+          >
+            Actual {pct(actual)} | Planned {pct(planned)}
           </div>
-        ))}
+        </div>
+
+        <div
+          style={{
+            height: 12,
+            background: '#1e293b',
+            borderRadius: 999,
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: `${ratio}%`,
+              height: '100%',
+              background: color,
+              borderRadius: 999,
+              transition: 'all .5s ease',
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            marginTop: 4,
+            fontSize: 10,
+            color,
+            fontWeight: 500,
+          }}
+        >
+          SPI: {Number(ph.SPI || 0).toFixed(2)}
+        </div>
       </div>
+    );
+  })}
+</div>
     </>
   );
 }
