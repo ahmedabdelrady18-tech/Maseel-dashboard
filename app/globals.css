@@ -1061,3 +1061,93 @@ body.light-theme .phase-progress-text {
     print-color-adjust: exact !important;
   }
 }
+/* Premium Login */
+
+.login-page {
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+    linear-gradient(135deg, #4d5f73, #263445);
+}
+
+.premium-login-card {
+  position: relative;
+  overflow: hidden;
+  width: 520px;
+  padding: 34px;
+  background: rgba(17, 43, 55, 0.78);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  animation: loginFadeUp 0.65s ease both;
+}
+
+.premium-login-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(56, 189, 248, 0.25),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: cardShine 4s infinite;
+  pointer-events: none;
+}
+
+.premium-login-card h1 {
+  font-size: 36px;
+  line-height: 1.15;
+  margin: 0 0 18px;
+  letter-spacing: -0.5px;
+}
+
+.premium-login-card .small {
+  color: #b8c7d9;
+}
+
+.premium-login-card .input {
+  height: 54px;
+  border-radius: 14px;
+  background: #eef5ff;
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.premium-login-card .btn {
+  min-width: 120px;
+  height: 48px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(56, 189, 248, 0.35);
+  transition: 0.25s ease;
+}
+
+.premium-login-card .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(56, 189, 248, 0.45);
+}
+
+@keyframes loginFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardShine {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  45%,
+  100% {
+    transform: translateX(100%);
+  }
+}
