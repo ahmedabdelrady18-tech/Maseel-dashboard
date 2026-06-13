@@ -80,18 +80,11 @@ const SCurve = ({ data }: any) => {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 10,
           marginBottom: 12,
         }}
       >
-        <div className="card" style={sCurveKpiCard}>
-          <div className="kpi-title">S-Curve SPI</div>
-          <div className="kpi-value" style={{ fontSize: 24, color: sCurveSPIColor }}>
-            {sCurveSPI.toFixed(2)}
-          </div>
-        </div>
-
         <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">S-Curve Status</div>
           <div className="kpi-value" style={{ fontSize: 22, color: sCurveSPIColor }}>
@@ -143,11 +136,6 @@ const SCurve = ({ data }: any) => {
             stroke="#facc15"
             strokeWidth={2}
             strokeDasharray="6 6"
-            label={{
-              value: `SPI ${sCurveSPI.toFixed(2)} | ${sCurveStatus}`,
-              fill: sCurveSPIColor,
-              position: 'top',
-            }}
           />
 
           <Bar dataKey="planned" fill="#38bdf8" opacity={0.38} name="Monthly Planned %" />
@@ -302,6 +290,7 @@ export default function Dashboard() {
   };
 
   const total = phases.length;
+
   const onTrack = phases.filter((x: any) => Number(x.SPI || 0) >= 1).length;
 
   const warning = phases.filter(

@@ -17,35 +17,34 @@ export default function Delays() {
   const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
   const phaseRows = rows.filter(
-    (r: any) => String(r['Phase Delay/Ahead'] || '').toLowerCase() !== 'overall'
+    (r: any) =>
+      String(r['Phase Delay/Ahead'] || '').toLowerCase() !== 'overall'
   );
 
   const criticalCount = phaseRows.filter(
     (r: any) => Number(r['Variance Finish Date']) <= -30
   ).length;
 
-  const avgDelay =
+  const maximumDelay =
     phaseRows.length > 0
-      ? Math.round(
-          phaseRows.reduce(
-            (sum: number, r: any) =>
-              sum + Math.abs(Number(r['Variance Finish Date']) || 0),
-            0
-          ) / phaseRows.length
+      ? Math.max(
+          ...phaseRows.map((r: any) =>
+            Math.abs(Number(r['Variance Finish Date']) || 0)
+          )
         )
       : 0;
 
   const worstPhase =
     phaseRows.length > 0
       ? phaseRows.reduce((a: any, b: any) =>
-          Number(a['Variance Finish Date']) < Number(b['Variance Finish Date']) ? a : b
+          Number(a['Variance Finish Date']) <
+          Number(b['Variance Finish Date'])
+            ? a
+            : b
         )
       : null;
 
-  const maxDelay = Math.max(
-    ...phaseRows.map((r: any) => Math.abs(Number(r['Variance Finish Date']) || 0)),
-    1
-  );
+  const maxDelay = Math.max(maximumDelay, 1);
 
   function getSeverity(delay: number) {
     if (delay <= -50) return { label: 'Critical', className: 'status-bad' };
@@ -70,8 +69,8 @@ export default function Delays() {
         </div>
 
         <div className="activity-summary-card">
-          <span>Average Delay</span>
-          <strong className="status-watch">{avgDelay} Days</strong>
+          <span>Maximum Delay</span>
+          <strong className="status-bad">{maximumDelay} Days</strong>
         </div>
 
         <div className="activity-summary-card">
@@ -143,7 +142,9 @@ export default function Delays() {
                     <td
                       key={col}
                       className={
-                        col === 'Variance Finish Date' && delay < 0 ? 'status-bad' : ''
+                        col === 'Variance Finish Date' && delay < 0
+                          ? 'status-bad'
+                          : ''
                       }
                     >
                       {formatValue(row[col])}
