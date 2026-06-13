@@ -67,6 +67,14 @@ const SCurve = ({ data }: any) => {
 
   const currentMonth = lastActualPoint?.month || chartData[0]?.month;
 
+  const sCurveKpiCard: CSSProperties = {
+    padding: 12,
+    minHeight: 72,
+    background: 'linear-gradient(135deg, rgba(42,74,103,.96), rgba(54,93,122,.95))',
+    border: '1px solid rgba(79,195,247,.22)',
+    boxShadow: '0 8px 22px rgba(0,0,0,.16)',
+  };
+
   return (
     <>
       <div
@@ -77,21 +85,21 @@ const SCurve = ({ data }: any) => {
           marginBottom: 12,
         }}
       >
-        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+        <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">S-Curve SPI</div>
           <div className="kpi-value" style={{ fontSize: 24, color: sCurveSPIColor }}>
             {sCurveSPI.toFixed(2)}
           </div>
         </div>
 
-        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+        <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">S-Curve Status</div>
           <div className="kpi-value" style={{ fontSize: 22, color: sCurveSPIColor }}>
             {sCurveStatus}
           </div>
         </div>
 
-        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+        <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">S-Curve Variance</div>
           <div
             className="kpi-value"
@@ -104,7 +112,7 @@ const SCurve = ({ data }: any) => {
           </div>
         </div>
 
-        <div className="card" style={{ padding: 12, minHeight: 72 }}>
+        <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">Latest Update</div>
           <div className="kpi-value" style={{ fontSize: 22, color: '#4FC3F7' }}>
             {currentMonth || 'N/A'}
@@ -114,14 +122,14 @@ const SCurve = ({ data }: any) => {
 
       <ResponsiveContainer width="100%" height={360}>
         <ComposedChart data={chartData} margin={{ top: 25, right: 30, left: 10, bottom: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#16365f" />
-          <XAxis dataKey="month" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-          <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v}%`} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#1e4a6d" />
+          <XAxis dataKey="month" stroke="#cbd5e1" tick={{ fontSize: 11 }} />
+          <YAxis stroke="#cbd5e1" tickFormatter={(v) => `${v}%`} />
 
           <Tooltip
             contentStyle={{
-              background: '#08172c',
-              border: '1px solid #1e3a5f',
+              background: '#14314a',
+              border: '1px solid #4FC3F7',
               borderRadius: 10,
               color: '#fff',
             }}
@@ -142,8 +150,8 @@ const SCurve = ({ data }: any) => {
             }}
           />
 
-          <Bar dataKey="planned" fill="#38bdf8" opacity={0.35} name="Monthly Planned %" />
-          <Bar dataKey="actual" fill="#22c55e" opacity={0.65} name="Monthly Actual %" />
+          <Bar dataKey="planned" fill="#38bdf8" opacity={0.38} name="Monthly Planned %" />
+          <Bar dataKey="actual" fill="#22c55e" opacity={0.72} name="Monthly Actual %" />
 
           <Line
             type="monotone"
@@ -210,15 +218,15 @@ const SPITrend = ({ data }: any) => {
   return (
     <ResponsiveContainer width="100%" height={260}>
       <AreaChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#16365f" />
-        <XAxis dataKey="month" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-        <YAxis domain={[0, 1.3]} stroke="#94a3b8" tick={{ fontSize: 11 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#1e4a6d" />
+        <XAxis dataKey="month" stroke="#cbd5e1" tick={{ fontSize: 11 }} />
+        <YAxis domain={[0, 1.3]} stroke="#cbd5e1" tick={{ fontSize: 11 }} />
 
         <Tooltip
           formatter={(v: any) => Number(v).toFixed(2)}
           contentStyle={{
-            background: '#08172c',
-            border: '1px solid #1e3a5f',
+            background: '#14314a',
+            border: '1px solid #4FC3F7',
             borderRadius: 10,
             color: '#fff',
           }}
@@ -238,7 +246,7 @@ const SPITrend = ({ data }: any) => {
           dataKey="spi"
           stroke="#4FC3F7"
           fill="#4FC3F7"
-          fillOpacity={0.25}
+          fillOpacity={0.28}
           strokeWidth={4}
           dot={{ r: 4 }}
           name="SPI"
@@ -294,7 +302,6 @@ export default function Dashboard() {
   };
 
   const total = phases.length;
-
   const onTrack = phases.filter((x: any) => Number(x.SPI || 0) >= 1).length;
 
   const warning = phases.filter(
@@ -334,11 +341,17 @@ export default function Dashboard() {
   const glassCard: CSSProperties = {
     padding: 14,
     minHeight: 92,
-    background: 'linear-gradient(135deg, rgba(17,24,39,.92), rgba(8,23,38,.88))',
-    border: '1px solid rgba(79,195,247,.18)',
-    boxShadow: '0 8px 24px rgba(0,0,0,.25)',
+    background: 'linear-gradient(135deg, rgba(42,74,103,.96), rgba(54,93,122,.95))',
+    border: '1px solid rgba(79,195,247,.24)',
+    boxShadow: '0 10px 28px rgba(0,0,0,.18)',
     backdropFilter: 'blur(10px)',
     transition: 'all .2s ease',
+  };
+
+  const softPanel: CSSProperties = {
+    background: 'linear-gradient(135deg, rgba(35,67,94,.96), rgba(49,87,115,.94))',
+    border: '1px solid rgba(79,195,247,.22)',
+    boxShadow: '0 10px 26px rgba(0,0,0,.16)',
   };
 
   const Sparkline = ({ color = '#38bdf8' }: any) => (
@@ -367,7 +380,7 @@ export default function Dashboard() {
           width: 50,
           height: 50,
           borderRadius: '50%',
-          background: `conic-gradient(${color} ${safeValue * 100}%, #26364a 0)`,
+          background: `conic-gradient(${color} ${safeValue * 100}%, #31506b 0)`,
           display: 'grid',
           placeItems: 'center',
         }}
@@ -377,7 +390,7 @@ export default function Dashboard() {
             width: 37,
             height: 37,
             borderRadius: '50%',
-            background: '#111827',
+            background: '#1c3b54',
             display: 'grid',
             placeItems: 'center',
             fontSize: 12,
@@ -405,7 +418,7 @@ export default function Dashboard() {
           width: 58,
           height: 58,
           borderRadius: '50%',
-          background: `conic-gradient(${color} ${percent}%, #26364a ${percent}% 100%)`,
+          background: `conic-gradient(${color} ${percent}%, #31506b ${percent}% 100%)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -416,7 +429,7 @@ export default function Dashboard() {
             width: 43,
             height: 43,
             borderRadius: '50%',
-            background: '#081726',
+            background: '#1c3b54',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -426,7 +439,7 @@ export default function Dashboard() {
           <div style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>
             {safeValue.toFixed(2)}
           </div>
-          <div style={{ fontSize: 8, color: '#94a3b8' }}>SPI</div>
+          <div style={{ fontSize: 8, color: '#cbd5e1' }}>SPI</div>
         </div>
       </div>
     );
@@ -442,7 +455,7 @@ export default function Dashboard() {
             height: h,
             borderRadius: 4,
             background: '#ef4444',
-            opacity: 0.8,
+            opacity: 0.88,
           }}
         />
       ))}
@@ -463,7 +476,7 @@ export default function Dashboard() {
           borderRadius: '50%',
           background: `conic-gradient(#22c55e 0 ${green}%, #facc15 ${green}% ${
             green + yellow
-          }%, #ef4444 ${green + yellow}% ${green + yellow + red}%, #26364a 0)`,
+          }%, #ef4444 ${green + yellow}% ${green + yellow + red}%, #31506b 0)`,
           display: 'grid',
           placeItems: 'center',
           margin: '0 auto',
@@ -474,14 +487,14 @@ export default function Dashboard() {
             width: 86,
             height: 86,
             borderRadius: '50%',
-            background: '#081726',
+            background: '#1c3b54',
             display: 'grid',
             placeItems: 'center',
             textAlign: 'center',
           }}
         >
           <div style={{ fontSize: 26, fontWeight: 900 }}>{total}</div>
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>PHASES</div>
+          <div style={{ fontSize: 11, color: '#cbd5e1' }}>PHASES</div>
         </div>
       </div>
     );
@@ -492,16 +505,16 @@ export default function Dashboard() {
       className="card"
       style={{
         ...glassCard,
-        border: `1px solid ${color}44`,
-        background: `linear-gradient(135deg, #111827 0%, #0b1626 72%, ${color}20 100%)`,
+        border: `1px solid ${color}55`,
+        background: `linear-gradient(135deg, rgba(30,62,88,.96) 0%, rgba(43,80,108,.95) 72%, ${color}18 100%)`,
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-3px)';
-        e.currentTarget.style.boxShadow = `0 10px 28px ${color}22`;
+        e.currentTarget.style.boxShadow = `0 12px 30px ${color}24`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,.25)';
+        e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,.18)';
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
@@ -521,7 +534,7 @@ export default function Dashboard() {
             width: 42,
             height: 42,
             borderRadius: 13,
-            background: `${color}1f`,
+            background: `${color}26`,
             display: 'grid',
             placeItems: 'center',
             fontSize: 21,
@@ -542,7 +555,8 @@ export default function Dashboard() {
         style={{
           padding: 18,
           border: `1px solid ${healthColor}55`,
-          background: `linear-gradient(135deg, rgba(8,23,38,.95), rgba(17,24,39,.92), ${healthColor}20)`,
+          background: `linear-gradient(135deg, rgba(35,67,94,.96), rgba(49,87,115,.94), ${healthColor}18)`,
+          boxShadow: '0 12px 32px rgba(0,0,0,.18)',
         }}
       >
         <div
@@ -554,7 +568,7 @@ export default function Dashboard() {
           }}
         >
           <div>
-            <div style={{ color: '#94a3b8', fontSize: 12, letterSpacing: 2 }}>
+            <div style={{ color: '#d5e7f5', fontSize: 12, letterSpacing: 2 }}>
               PROJECT CONTROL CENTER
             </div>
 
@@ -576,7 +590,7 @@ export default function Dashboard() {
                   width: 46,
                   height: 46,
                   borderRadius: '50%',
-                  background: `conic-gradient(${healthColor} ${healthScore}%, #26364a 0)`,
+                  background: `conic-gradient(${healthColor} ${healthScore}%, #31506b 0)`,
                   display: 'grid',
                   placeItems: 'center',
                 }}
@@ -586,7 +600,7 @@ export default function Dashboard() {
                     width: 32,
                     height: 32,
                     borderRadius: '50%',
-                    background: '#111827',
+                    background: '#1c3b54',
                   }}
                 />
               </div>
@@ -617,7 +631,7 @@ export default function Dashboard() {
         MASEEL MASTERPLAN INTERACTIVE VIEW
       </h2>
 
-      <div className="card section">
+      <div className="card section" style={softPanel}>
         <div
           style={{
             display: 'grid',
@@ -630,8 +644,8 @@ export default function Dashboard() {
             style={{
               padding: 14,
               borderRadius: 14,
-              border: '1px solid #26364a',
-              background: 'rgba(11,22,38,.78)',
+              border: '1px solid rgba(79,195,247,.24)',
+              background: 'rgba(25,55,78,.88)',
               lineHeight: 1.8,
               fontSize: 13,
             }}
@@ -655,7 +669,7 @@ export default function Dashboard() {
                 width: '100%',
                 display: 'block',
                 borderRadius: 18,
-                border: '1px solid #26364a',
+                border: '1px solid rgba(79,195,247,.24)',
               }}
             />
 
@@ -692,8 +706,7 @@ export default function Dashboard() {
             marginTop: 18,
             padding: 14,
             borderRadius: 18,
-            background: 'rgba(8,23,38,.86)',
-            border: '1px solid #1e3a5f',
+            ...softPanel,
           }}
         >
           <h3
@@ -815,7 +828,7 @@ export default function Dashboard() {
             Risk Score: {phaseRiskScore(mostCriticalPhase || {}).toFixed(1)}
           </div>
 
-          <div style={{ marginTop: 12, color: '#ef4444', fontSize: 13 }}>
+          <div style={{ marginTop: 12, color: '#ffb4b4', fontSize: 13 }}>
             Recovery actions are recommended.
           </div>
         </div>
@@ -823,7 +836,7 @@ export default function Dashboard() {
         <div className="card" style={glassCard}>
           <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>Project Status Commentary</h3>
 
-          <div style={{ color: '#cbd5e1', lineHeight: 1.7, fontSize: 13 }}>
+          <div style={{ color: '#f1f5f9', lineHeight: 1.7, fontSize: 13 }}>
             Project health is currently <b style={{ color: healthColor }}>{projectHealth}</b>.
             Overall SPI is <b>{overallSpi.toFixed(2)}</b>, with{' '}
             <b style={{ color: '#ef4444' }}>{critical}</b> critical phase(s). The most critical
@@ -859,7 +872,7 @@ export default function Dashboard() {
               <div
                 style={{
                   height: 10,
-                  background: '#26364a',
+                  background: '#31506b',
                   borderRadius: 20,
                   overflow: 'hidden',
                 }}
@@ -882,7 +895,7 @@ export default function Dashboard() {
           <div
             style={{
               marginTop: 20,
-              borderTop: '1px solid rgba(255,255,255,.08)',
+              borderTop: '1px solid rgba(255,255,255,.14)',
               paddingTop: 15,
             }}
           >
@@ -948,7 +961,7 @@ export default function Dashboard() {
         <ExecCard title="Remaining Time" value={`${o['Remaining Time']} Days`} icon="⌛" color="#38bdf8" trend="To completion" />
       </div>
 
-      <div className="card section">
+      <div className="card section" style={glassCard}>
         <h2>Phase Progress</h2>
 
         {phases.map((ph: any) => {
@@ -965,7 +978,7 @@ export default function Dashboard() {
               style={{
                 marginTop: 8,
                 paddingBottom: 8,
-                borderBottom: '1px solid rgba(255,255,255,.08)',
+                borderBottom: '1px solid rgba(255,255,255,.14)',
               }}
             >
               <div
@@ -978,7 +991,7 @@ export default function Dashboard() {
               >
                 <strong style={{ fontSize: 14, color: '#fff' }}>{ph.Phase}</strong>
 
-                <div style={{ fontSize: 12, color: '#cbd5e1' }}>
+                <div style={{ fontSize: 12, color: '#e2e8f0' }}>
                   Actual {pct(actual)} | Planned {pct(planned)}
                 </div>
               </div>
@@ -986,7 +999,7 @@ export default function Dashboard() {
               <div
                 style={{
                   height: 12,
-                  background: '#1e293b',
+                  background: '#31506b',
                   borderRadius: 999,
                   overflow: 'hidden',
                 }}
