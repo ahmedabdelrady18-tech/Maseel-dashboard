@@ -111,6 +111,7 @@ export function getDashboardData() {
   const risks = sheetRows(workbook, 'Issues_Risks');
   const photos = sheetRows(workbook, 'Site_Photos');
   const spiSheet = workbook.Sheets['SPI Trend'];
+  const lookahead = sheetRows(workbook, 'Lookahead_3Weeks');
 let spiTrend: any[] = [];
 
 if (spiSheet) {
@@ -143,17 +144,17 @@ if (spiSheet) {
   const sCurve = readSCurve(workbook);
 
   return {
-    projectInfo,
-    overall,
-    phases,
-    activities,
-    delays,
-    risks,
-    photos,
-    spiTrend: spiTrend,
-    sCurve,
-    updatedAt: new Date().toISOString(),
-  };
+  projectInfo,
+  overall,
+  phases,
+  activities,
+  lookahead,
+  delays,
+  risks,
+  photos,
+  spiTrend,
+  sCurve
+};
 }
 
 export function pct(value: any) {

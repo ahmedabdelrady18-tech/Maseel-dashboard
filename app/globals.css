@@ -418,7 +418,7 @@ td {
 
 .activity-summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -564,6 +564,60 @@ td {
   font-weight: 700;
 }
 
+/* 3 Week Look Ahead Wide Card */
+
+.lookahead-wide-card {
+  background: linear-gradient(135deg, rgba(30, 62, 88, 0.98), rgba(43, 80, 108, 0.96));
+  border: 1px solid rgba(79, 195, 247, 0.35);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  display: grid;
+  grid-template-columns: 260px 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+
+.lookahead-label {
+  display: inline-block;
+  color: #93c5fd;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.lookahead-wide-card h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 26px;
+}
+
+.lookahead-wide-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.lookahead-wide-stats div {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.lookahead-wide-stats span {
+  display: block;
+  color: #cbd5e1;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.lookahead-wide-stats strong {
+  font-size: 24px;
+  color: #ffffff;
+}
+
 /* Badges */
 
 .badge {
@@ -643,42 +697,6 @@ td {
   vertical-align: top;
 }
 
-.risks-table-wrap th:nth-child(1),
-.risks-table-wrap td:nth-child(1) {
-  width: 70px;
-}
-
-.risks-table-wrap th:nth-child(2),
-.risks-table-wrap td:nth-child(2) {
-  width: 230px;
-}
-
-.risks-table-wrap th:nth-child(3),
-.risks-table-wrap td:nth-child(3) {
-  width: 360px;
-}
-
-.risks-table-wrap th:nth-child(4),
-.risks-table-wrap td:nth-child(4),
-.risks-table-wrap th:nth-child(5),
-.risks-table-wrap td:nth-child(5),
-.risks-table-wrap th:nth-child(6),
-.risks-table-wrap td:nth-child(6),
-.risks-table-wrap th:nth-child(7),
-.risks-table-wrap td:nth-child(7) {
-  width: 110px;
-}
-
-.risks-table-wrap th:nth-child(8),
-.risks-table-wrap td:nth-child(8) {
-  width: 360px;
-}
-
-.risks-table-wrap th:nth-child(9),
-.risks-table-wrap td:nth-child(9) {
-  width: 130px;
-}
-
 /* Theme Switch */
 
 .theme-switch {
@@ -752,16 +770,28 @@ body.light-theme .nav a:hover {
 body.light-theme .card,
 body.light-theme .phase-card,
 body.light-theme .activity-summary-card,
-body.light-theme .photo-card {
+body.light-theme .photo-card,
+body.light-theme .lookahead-wide-card {
   background: #ffffff;
   color: #111827;
   border: 1px solid #dbe3ee;
 }
 
+body.light-theme .lookahead-wide-stats div {
+  background: #f8fafc;
+  border: 1px solid #dbe3ee;
+}
+
 body.light-theme .small,
 body.light-theme .kpi-title,
-body.light-theme .metric-top {
+body.light-theme .metric-top,
+body.light-theme .lookahead-wide-stats span {
   color: #475569;
+}
+
+body.light-theme .lookahead-wide-card h2,
+body.light-theme .lookahead-wide-stats strong {
+  color: #111827;
 }
 
 body.light-theme table {
@@ -784,94 +814,6 @@ body.light-theme .theme-switch button {
 
 body.light-theme .btn {
   color: #011526;
-}
-
-/* Executive Print Report */
-
-.print-report {
-  background: #eef3f8;
-  color: #0f172a;
-  padding: 24px;
-}
-
-.print-cover,
-.print-page {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 18px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.print-cover h1 {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
-
-.print-cover h2 {
-  color: #2563eb;
-  margin-bottom: 18px;
-}
-
-.print-action {
-  margin-top: 20px;
-  background: #2563eb;
-  color: #ffffff;
-  border: 0;
-  border-radius: 10px;
-  padding: 12px 18px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.print-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 18px;
-}
-
-.print-kpi-grid div {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  padding: 14px;
-}
-
-.print-kpi-grid span {
-  display: block;
-  color: #64748b;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.print-kpi-grid strong {
-  font-size: 24px;
-  color: #0f172a;
-}
-
-.print-photo-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.print-photo-card {
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #ffffff;
-}
-
-.print-photo-card img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-}
-
-.print-photo-card h3,
-.print-photo-card p {
-  padding: 0 14px;
 }
 
 /* Print */
@@ -910,22 +852,12 @@ body.light-theme .btn {
     overflow: visible !important;
   }
 
-  h1 {
-    font-size: 22px !important;
-    margin: 8px 0 12px !important;
-  }
-
-  h2,
-  h3 {
-    font-size: 15px !important;
-    margin: 8px 0 !important;
-  }
-
   .card,
   .phase-card,
   .activity-summary-card,
   .table-wrap,
-  .photo-card {
+  .photo-card,
+  .lookahead-wide-card {
     background: #ffffff !important;
     color: #0f172a !important;
     border: 1px solid #cbd5e1 !important;
@@ -933,59 +865,27 @@ body.light-theme .btn {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
-
-  .print-report {
-    padding: 0 !important;
-    background: #eef3f8 !important;
-  }
-
-  .print-cover,
-  .print-page {
-    page-break-after: always;
-    break-after: page;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    min-height: 180mm;
-  }
-
-  table {
-    width: 100% !important;
-    font-size: 10px !important;
-    background: #ffffff !important;
-  }
-
-  th {
-    background: #dbeafe !important;
-    color: #0f172a !important;
-    font-size: 10px !important;
-  }
-
-  td {
-    color: #0f172a !important;
-    font-size: 10px !important;
-  }
-
-  img {
-    max-width: 100% !important;
-  }
-
-  .photo-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
-  }
-
-  .photo-card img {
-    height: 130px !important;
-  }
 }
 
 /* Responsive */
 
+@media (max-width: 1200px) {
+  .activity-summary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .lookahead-wide-card {
+    grid-template-columns: 1fr;
+  }
+
+  .lookahead-wide-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 1000px) {
   .grid,
-  .phase-grid,
-  .activity-summary-grid {
+  .phase-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -1018,6 +918,10 @@ body.light-theme .btn {
 
   .content {
     padding: 18px;
+  }
+
+  .lookahead-wide-stats {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -1,11 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useDashboardData } from '@/components/DataClient';
 
 function formatValue(value: any) {
   if (value === null || value === undefined || value === '') return '-';
   return String(value);
+}
+
+function isCritical(value: any) {
+  return String(value || '').toLowerCase() === 'yes';
 }
 
 export default function Activities() {
@@ -18,7 +23,24 @@ export default function Activities() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="error">{error}</p>;
 
-  const allRows = data.activities;
+  const allRows = data.activities || [];
+  const lookaheadRows = data.lookahead || [];
+
+  const lookaheadTotal = lookaheadRows.length;
+
+  const lookaheadCritical = lookaheadRows.filter((r: any) =>
+    isCritical(r.Critical)
+  ).length;
+
+  const lookaheadInProgress = lookaheadRows.filter((r: any) =>
+    String(r['Activity Status'] || '').toLowerCase().includes('progress')
+  ).length;
+
+  const lookaheadNearestStart =
+    lookaheadRows
+      .map((r: any) => r.Start)
+      .filter(Boolean)
+      .sort()[0] || '-';
 
   const phases = Array.from(
     new Set(
@@ -48,12 +70,12 @@ export default function Activities() {
   ).length;
 
   const criticalActivities = phaseRows.filter(
-    (r: any) => String(r['Critical']).toLowerCase() === 'yes'
+    (r: any) => String(r.Critical).toLowerCase() === 'yes'
   ).length;
 
   const statusRows = phaseRows.filter((r: any) => {
     const status = String(r['Activity Status']).toLowerCase();
-    const critical = String(r['Critical']).toLowerCase();
+    const critical = String(r.Critical).toLowerCase();
 
     if (filter === 'completed') return status === 'completed';
     if (filter === 'in-progress') return status === 'in progress';
@@ -108,46 +130,79 @@ export default function Activities() {
       </div>
 
       <div className="activity-summary-grid section">
-        <button
-          className={`activity-summary-card clickable-card ${filter === 'all' ? 'active-filter' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          <span>Total Activities</span>
-          <strong>{totalActivities}</strong>
-        </button>
+  <button
+    className={`activity-summary-card clickable-card ${filter === 'all' ? 'active-filter' : ''}`}
+    onClick={() => setFilter('all')}
+  >
+    <span>Total Activities</span>
+    <strong>{totalActivities}</strong>
+  </button>
 
-        <button
-          className={`activity-summary-card clickable-card ${filter === 'completed' ? 'active-filter' : ''}`}
-          onClick={() => setFilter('completed')}
-        >
-          <span>Completed</span>
-          <strong className="status-good">{completedActivities}</strong>
-        </button>
+  <button
+    className={`activity-summary-card clickable-card ${filter === 'completed' ? 'active-filter' : ''}`}
+    onClick={() => setFilter('completed')}
+  >
+    <span>Completed</span>
+    <strong className="status-good">{completedActivities}</strong>
+  </button>
 
-        <button
-          className={`activity-summary-card clickable-card ${filter === 'in-progress' ? 'active-filter' : ''}`}
-          onClick={() => setFilter('in-progress')}
-        >
-          <span>In Progress</span>
-          <strong className="status-watch">{inProgressActivities}</strong>
-        </button>
+  <button
+    className={`activity-summary-card clickable-card ${filter === 'in-progress' ? 'active-filter' : ''}`}
+    onClick={() => setFilter('in-progress')}
+  >
+    <span>In Progress</span>
+    <strong className="status-watch">{inProgressActivities}</strong>
+  </button>
 
-        <button
-          className={`activity-summary-card clickable-card ${filter === 'not-started' ? 'active-filter' : ''}`}
-          onClick={() => setFilter('not-started')}
-        >
-          <span>Not Started</span>
-          <strong>{notStartedActivities}</strong>
-        </button>
+  <button
+    className={`activity-summary-card clickable-card ${filter === 'not-started' ? 'active-filter' : ''}`}
+    onClick={() => setFilter('not-started')}
+  >
+    <span>Not Started</span>
+    <strong>{notStartedActivities}</strong>
+  </button>
 
-        <button
-          className={`activity-summary-card clickable-card ${filter === 'critical' ? 'active-filter' : ''}`}
-          onClick={() => setFilter('critical')}
-        >
-          <span>Critical</span>
-          <strong className="status-bad">{criticalActivities}</strong>
-        </button>
-      </div>
+  <button
+    className={`activity-summary-card clickable-card ${filter === 'critical' ? 'active-filter' : ''}`}
+    onClick={() => setFilter('critical')}
+  >
+    <span>Critical</span>
+    <strong className="status-bad">{criticalActivities}</strong>
+  </button>
+</div>
+
+<div className="lookahead-wide-card section">
+  <div>
+    <span className="lookahead-label">Planning Window</span>
+    <h2>3 Week Look Ahead</h2>
+  </div>
+
+  <div className="lookahead-wide-stats">
+    <div>
+      <span>Total Activities</span>
+      <strong>{lookaheadTotal}</strong>
+    </div>
+
+    <div>
+      <span>In Progress</span>
+      <strong className="status-watch">{lookaheadInProgress}</strong>
+    </div>
+
+    <div>
+      <span>Critical Activities</span>
+      <strong className="status-bad">{lookaheadCritical}</strong>
+    </div>
+
+    <div>
+      <span>Nearest Start</span>
+      <strong>{lookaheadNearestStart}</strong>
+    </div>
+  </div>
+
+  <Link href="/dashboard/lookahead">
+    <button className="btn">View Details</button>
+  </Link>
+</div>
 
       <div className="activity-search-box section">
         <input
@@ -160,58 +215,68 @@ export default function Activities() {
       </div>
 
       <p className="small section">
-        Phase: <strong>{phaseFilter}</strong> | Current Filter: <strong>{filter}</strong> | Showing{' '}
-        {rows.length} of {searchedRows.length} activities
+        Phase: <strong>{phaseFilter}</strong> | Current Filter:{' '}
+        <strong>{filter}</strong> | Showing {rows.length} of{' '}
+        {searchedRows.length} activities
       </p>
 
       <div className="activities-table-box section">
         <div className="activities-table-scroll">
           <table>
             <thead>
-  <tr>
-    {columns.map((col) => (
-      <th key={col}>{col}</th>
-    ))}
-  </tr>
-</thead>
+              <tr>
+                {columns.map((col) => (
+                  <th key={col}>{col}</th>
+                ))}
+              </tr>
+            </thead>
 
             <tbody>
-  {rows.map((row: any, i: number) => (
-    <tr key={i}>
-      {columns.map((col) => (
-        <td key={col} className={col === 'Total Float' && Number(row[col]) < 0 ? 'status-bad' : ''}>
-  {col === '02- Con.Phase' ? (
-    <span className="phase-pill">{formatValue(row[col])}</span>
-  ) : col === 'Activity Status' ? (
-    <span
-      className={
-        String(row[col]).toLowerCase() === 'completed'
-          ? 'status-badge-completed'
-          : String(row[col]).toLowerCase() === 'in progress'
-          ? 'status-badge-progress'
-          : 'status-badge-notstarted'
-      }
-    >
-      {formatValue(row[col])}
-    </span>
-  ) : col === 'Critical' ? (
-    <span
-      className={
-        String(row[col]).toLowerCase() === 'yes'
-          ? 'critical-badge'
-          : 'normal-badge'
-      }
-    >
-      {formatValue(row[col])}
-    </span>
-  ) : (
-    formatValue(row[col])
-  )}
-</td>
-      ))}
-    </tr>
-  ))}
-</tbody>
+              {rows.map((row: any, i: number) => (
+                <tr key={i}>
+                  {columns.map((col) => (
+                    <td
+                      key={col}
+                      className={
+                        col === 'Total Float' && Number(row[col]) < 0
+                          ? 'status-bad'
+                          : ''
+                      }
+                    >
+                      {col === '02- Con.Phase' ? (
+                        <span className="phase-pill">
+                          {formatValue(row[col])}
+                        </span>
+                      ) : col === 'Activity Status' ? (
+                        <span
+                          className={
+                            String(row[col]).toLowerCase() === 'completed'
+                              ? 'status-badge-completed'
+                              : String(row[col]).toLowerCase() === 'in progress'
+                              ? 'status-badge-progress'
+                              : 'status-badge-notstarted'
+                          }
+                        >
+                          {formatValue(row[col])}
+                        </span>
+                      ) : col === 'Critical' ? (
+                        <span
+                          className={
+                            String(row[col]).toLowerCase() === 'yes'
+                              ? 'critical-badge'
+                              : 'normal-badge'
+                          }
+                        >
+                          {formatValue(row[col])}
+                        </span>
+                      ) : (
+                        formatValue(row[col])
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>

@@ -46,14 +46,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <div className="brand">Project Dashboard</div>
 
           <nav className="nav">
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/dashboard/progress">Progress</Link>
-            <Link href="/dashboard/activities">Activities</Link>
-            <Link href="/dashboard/delays">Delays</Link>
-            <Link href="/dashboard/risks">Risks</Link>
-            <Link href="/dashboard/photos">Photos</Link>
-            <Link href="/dashboard/Print">Print Report</Link>
-          </nav>
+  <Link href="/dashboard">Dashboard</Link>
+  <Link href="/dashboard/progress">Progress</Link>
+  <Link href="/dashboard/activities">Activities</Link>
+  <Link href="/dashboard/lookahead">3 Week Look Ahead</Link>
+  <Link href="/dashboard/delays">Delays</Link>
+  <Link href="/dashboard/risks">Risks</Link>
+  <Link href="/dashboard/photos">Photos</Link>
+  <Link href="/dashboard/Print">Print Report</Link>
+</nav>
         </div>
 
         <div className="theme-switch">
