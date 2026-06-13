@@ -23,6 +23,7 @@ function getStatusClass(value: any) {
 
 export default function LookaheadPage() {
   const { data, error, loading } = useDashboardData();
+
   const [phaseFilter, setPhaseFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchText, setSearchText] = useState('');
@@ -51,6 +52,7 @@ export default function LookaheadPage() {
 
     if (statusFilter === 'in-progress') return status.includes('progress');
     if (statusFilter === 'completed') return status.includes('complete');
+    if (statusFilter === 'not-started') return status.includes('not started');
     if (statusFilter === 'critical') return critical === 'yes';
 
     return true;
@@ -72,13 +74,11 @@ export default function LookaheadPage() {
     String(r['Activity Status'] || '').toLowerCase().includes('complete')
   ).length;
 
-  const critical = phaseRows.filter((r: any) => isCritical(r.Critical)).length;
+  const notStarted = phaseRows.filter((r: any) =>
+    String(r['Activity Status'] || '').toLowerCase().includes('not started')
+  ).length;
 
-  const nearestStart =
-    phaseRows
-      .map((r: any) => r.Start)
-      .filter(Boolean)
-      .sort()[0] || '-';
+  const critical = phaseRows.filter((r: any) => isCritical(r.Critical)).length;
 
   return (
     <>
@@ -148,6 +148,16 @@ export default function LookaheadPage() {
 
         <button
           className={`activity-summary-card clickable-card ${
+            statusFilter === 'not-started' ? 'active-filter' : ''
+          }`}
+          onClick={() => setStatusFilter('not-started')}
+        >
+          <span>Not Started</span>
+          <strong>{notStarted}</strong>
+        </button>
+
+        <button
+          className={`activity-summary-card clickable-card ${
             statusFilter === 'critical' ? 'active-filter' : ''
           }`}
           onClick={() => setStatusFilter('critical')}
@@ -155,11 +165,6 @@ export default function LookaheadPage() {
           <span>Critical Activities</span>
           <strong className="status-bad">{critical}</strong>
         </button>
-
-        <div className="activity-summary-card">
-          <span>Nearest Start</span>
-          <strong style={{ fontSize: 22 }}>{nearestStart}</strong>
-        </div>
       </div>
 
       <div className="activity-search-box section">
