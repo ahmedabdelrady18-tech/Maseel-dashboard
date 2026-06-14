@@ -3,12 +3,19 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isPublic = pathname.startsWith('/login') || pathname.startsWith('/api/login') || pathname.startsWith('/_next') || pathname === '/favicon.ico';
-  const isAuthenticated = request.cookies.get('dashboard_auth')?.value === 'true';
+
+  const isPublic =
+    pathname === '/login' ||
+    pathname.startsWith('/api/login') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/public') ||
+    pathname === '/favicon.ico';
+
+  const isAuthenticated =
+    request.cookies.get('dashboard_auth')?.value === 'true';
 
   if (!isPublic && !isAuthenticated) {
-    const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   if (pathname === '/login' && isAuthenticated) {
@@ -18,4 +25,9 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ['/((?!.*\\..*).*)'] };
+export const config = {
+  matcher: [
+    '/dashboard/:path*',
+    '/api/dashboard/:path*',
+  ],
+};
