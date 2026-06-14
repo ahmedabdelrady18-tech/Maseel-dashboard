@@ -127,7 +127,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                 style={{ objectFit: 'contain' }}
               />
             </div>
-<button className="btn print-btn" onClick={() => window.print()}>
+<button
+  className="btn print-btn"
+  onClick={() => router.push('/dashboard/Print')}
+>
   Export PDF
 </button>
                 <button className="btn" onClick={logout}>

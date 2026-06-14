@@ -9,12 +9,17 @@
   --green: #22c55e;
   --red: #ef4444;
   --yellow: #facc15;
+  --navy: #0f2742;
+  --print-blue: #1e3a5f;
+  --print-light: #f8fafc;
+  --print-border: #d6dee9;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
@@ -816,12 +821,186 @@ body.light-theme .btn {
   color: #011526;
 }
 
+/* Executive Print Report - Screen View */
+
+.print-report {
+  background: #eef2f7;
+  color: #111827;
+  padding: 28px;
+  min-height: 100vh;
+}
+
+.print-cover,
+.print-page {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 720px;
+  margin: 0 auto 28px;
+  padding: 34px;
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #d6dee9;
+  border-radius: 18px;
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.print-cover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.print-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 12px;
+  background: linear-gradient(90deg, #0f2742, #2563eb, #38bdf8);
+}
+
+.print-cover h1 {
+  font-size: 42px;
+  line-height: 1.12;
+  color: #0f172a;
+  margin: 34px 0 10px;
+  letter-spacing: -1px;
+}
+
+.print-cover h2 {
+  font-size: 24px;
+  color: #2563eb;
+  margin: 0 0 28px;
+}
+
+.print-cover p {
+  font-size: 15px;
+  color: #334155;
+  margin: 7px 0;
+}
+
+.print-action {
+  width: fit-content;
+  margin-top: 24px;
+  background: #2563eb;
+  color: #ffffff;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.print-page h2 {
+  font-size: 26px;
+  color: #0f172a;
+  margin: 0 0 22px;
+  padding-bottom: 10px;
+  border-bottom: 4px solid #2563eb;
+}
+
+.print-page h3 {
+  color: #0f2742;
+  margin: 18px 0 8px;
+}
+
+.print-page p {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.print-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.print-kpi-grid div {
+  background: #f8fafc;
+  border: 1px solid #d6dee9;
+  border-left: 5px solid #2563eb;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.print-kpi-grid span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.print-kpi-grid strong {
+  color: #0f172a;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.print-report table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  margin-top: 14px;
+}
+
+.print-report th {
+  background: #0f2742;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 9px;
+  border: 1px solid #d6dee9;
+  white-space: normal;
+}
+
+.print-report td {
+  color: #111827;
+  font-size: 11px;
+  padding: 8px;
+  border: 1px solid #d6dee9;
+  white-space: normal;
+  vertical-align: top;
+}
+
+.print-report tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.print-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.print-photo-card {
+  border: 1px solid #d6dee9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.print-photo-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  display: block;
+}
+
+.print-photo-card h3,
+.print-photo-card p {
+  padding: 0 14px;
+}
+
 /* Print */
 
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm;
+    margin: 8mm;
   }
 
   * {
@@ -829,41 +1008,207 @@ body.light-theme .btn {
     print-color-adjust: exact !important;
   }
 
+  html,
+  body {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+
   .sidebar,
   .topbar,
-  .btn,
   .theme-switch,
+  .btn,
+  .print-btn,
   .print-action {
     display: none !important;
   }
 
-  body {
-    background: #eef3f8 !important;
-    color: #0f172a !important;
-    font-size: 11px !important;
-  }
-
   .layout {
     display: block !important;
+    min-height: 0 !important;
+    background: #ffffff !important;
   }
 
   .content {
     padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
     overflow: visible !important;
+    background: #ffffff !important;
   }
 
-  .card,
-  .phase-card,
-  .activity-summary-card,
-  .table-wrap,
-  .photo-card,
-  .lookahead-wide-card {
+  .print-report {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
-    color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
+    color: #111827 !important;
+  }
+
+  .print-cover,
+  .print-page {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 180mm !important;
+    margin: 0 !important;
+    padding: 12mm !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: none !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
+    overflow: hidden !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .print-page:last-child,
+  .print-cover:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .print-cover::before {
+    height: 8px !important;
+  }
+
+  .print-cover h1 {
+    font-size: 34px !important;
+    line-height: 1.12 !important;
+    margin: 28mm 0 7mm !important;
+    color: #0f172a !important;
+  }
+
+  .print-cover h2 {
+    font-size: 21px !important;
+    color: #2563eb !important;
+    margin-bottom: 12mm !important;
+  }
+
+  .print-cover p {
+    font-size: 12px !important;
+    color: #334155 !important;
+    margin: 3mm 0 !important;
+  }
+
+  .print-page h2 {
+    font-size: 21px !important;
+    color: #0f172a !important;
+    border-bottom: 3px solid #2563eb !important;
+    padding-bottom: 3mm !important;
+    margin: 0 0 6mm !important;
+  }
+
+  .print-page h3 {
+    font-size: 14px !important;
+    color: #0f2742 !important;
+    margin: 6mm 0 3mm !important;
+  }
+
+  .print-page p {
+    font-size: 10.5px !important;
+    line-height: 1.55 !important;
+    color: #334155 !important;
+  }
+
+  .print-kpi-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4mm !important;
+    margin-bottom: 6mm !important;
+  }
+
+  .print-kpi-grid div {
+    background: #f8fafc !important;
+    border: 1px solid #d6dee9 !important;
+    border-left: 4px solid #2563eb !important;
+    border-radius: 3mm !important;
+    padding: 4mm !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+
+  .print-kpi-grid span {
+    display: block !important;
+    color: #64748b !important;
+    font-size: 8.5px !important;
+    margin-bottom: 2mm !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.4px !important;
+  }
+
+  .print-kpi-grid strong {
+    color: #0f172a !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+  }
+
+  .print-report table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: #ffffff !important;
+    margin-top: 4mm !important;
+    table-layout: fixed !important;
+  }
+
+  .print-report th {
+    background: #0f2742 !important;
+    color: #ffffff !important;
+    font-size: 8px !important;
+    padding: 2.4mm !important;
+    border: 1px solid #d6dee9 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  .print-report td {
+    color: #111827 !important;
+    font-size: 8px !important;
+    padding: 2.2mm !important;
+    border: 1px solid #d6dee9 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    vertical-align: top !important;
+  }
+
+  .print-report tbody tr:nth-child(even) {
+    background: #f8fafc !important;
+  }
+
+  .print-photo-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 5mm !important;
+  }
+
+  .print-photo-card {
+    border: 1px solid #d6dee9 !important;
+    border-radius: 3mm !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-photo-card img {
+    width: 100% !important;
+    height: 55mm !important;
+    object-fit: cover !important;
+  }
+
+  .print-photo-card h3,
+  .print-photo-card p {
+    padding: 0 3mm !important;
+  }
+
+  svg,
+  img {
+    max-width: 100% !important;
   }
 }
 
