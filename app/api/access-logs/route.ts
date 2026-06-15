@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { readAccessLogs } from '@/lib/accessLog';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   const role = request.cookies.get('dashboard_role')?.value;
@@ -12,9 +12,20 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const logs = readAccessLogs();
+  const { data, error } = await supabase
+    .from('access_logs')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(500);
 
-  return NextResponse.json(logs, {
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(data || [], {
     headers: {
       'Cache-Control': 'no-store',
     },

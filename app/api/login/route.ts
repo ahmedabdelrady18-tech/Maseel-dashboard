@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { saveAccessLog } from '@/lib/accessLog';
+import { saveAuditLog } from '@/lib/auditLog';
+console.log('ENV URL =', process.env.SUPABASE_URL);
+console.log('ENV KEY =', process.env.SUPABASE_ANON_KEY?.substring(0,20));
 
 const accessMap: Record<string, string | undefined> = {
   ADMIN: process.env.ACCESS_ADMIN,
@@ -33,6 +35,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const forwardedFor = request.headers.get('x-forwarded-for');
+
+    const ip =
+      forwardedFor?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'Unknown';
+
+    const country =
+      request.headers.get('x-vercel-ip-country') ||
+      'Unknown';
+
+    const city =
+      request.headers.get('x-vercel-ip-city') ||
+      'Unknown';
+
+    const userAgent =
+      request.headers.get('user-agent') ||
+      'Unknown';
+
+    await saveAuditLog({
+      name,
+      role,
+      ip,
+      country,
+      city,
+      user_agent: userAgent,
+    });
+
     const response = NextResponse.json({
       ok: true,
       name,
@@ -63,37 +93,10 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 8,
     });
 
-    const forwardedFor = request.headers.get('x-forwarded-for');
-
-    const ip =
-      forwardedFor?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      'Unknown';
-
-    const country =
-      request.headers.get('x-vercel-ip-country') ||
-      'Unknown';
-
-    const city =
-      request.headers.get('x-vercel-ip-city') ||
-      'Unknown';
-
-    const userAgent =
-      request.headers.get('user-agent') ||
-      'Unknown';
-
-    saveAccessLog({
-      name,
-      role,
-      time: new Date().toISOString(),
-      ip,
-      country,
-      city,
-      userAgent,
-    });
-
     return response;
   } catch (error: any) {
+    console.error('Login API Error:', error);
+
     return NextResponse.json(
       { error: error?.message || 'Login failed' },
       { status: 500 }
