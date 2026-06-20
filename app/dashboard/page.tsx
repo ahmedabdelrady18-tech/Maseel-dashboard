@@ -3,36 +3,34 @@
 import { pct, useDashboardData } from '@/components/DataClient';
 import { useState, type CSSProperties } from 'react';
 import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Area,
-  AreaChart,
-  LabelList,
-  ReferenceLine,
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, Area, AreaChart, LabelList, ReferenceLine,
 } from 'recharts';
 
+const C = {
+  primary: '#4C5B70',
+  secondary: '#4A7385',
+  light: '#BAD1DF',
+  cyan: '#62D6FF',
+  green: '#22c55e',
+  yellow: '#facc15',
+  red: '#ff4d57',
+  panel: 'rgba(76,91,112,.58)',
+  panel2: 'rgba(74,115,133,.48)',
+  border: 'rgba(186,209,223,.25)',
+  text: '#f8fafc',
+};
+
+function formatMonth(value: any) {
+  const text = String(value || '');
+  if (text.includes('-')) {
+    const parts = text.split('-');
+    if (parts.length === 3) return `${parts[1]}-${parts[2]}`;
+  }
+  return text;
+}
+
 const SCurve = ({ data }: any) => {
-  const formatMonth = (value: any) => {
-    const text = String(value || '');
-
-    if (text.includes('-')) {
-      const parts = text.split('-');
-
-      if (parts.length === 3) {
-        return `${parts[1]}-${parts[2]}`;
-      }
-    }
-
-    return text;
-  };
-
   const chartData = (data || []).map((x: any) => ({
     month: formatMonth(x.month),
     planned: Number(x.planned || 0) * 100,
@@ -41,13 +39,8 @@ const SCurve = ({ data }: any) => {
     cumActual: x.cumActual === null ? null : Number(x.cumActual || 0) * 100,
   }));
 
-  const lastActualPoint = [...chartData]
-    .reverse()
-    .find((x: any) => x.cumActual !== null);
-
-  const lastPlannedPoint = chartData.find(
-    (x: any) => x.month === lastActualPoint?.month
-  );
+  const lastActualPoint = [...chartData].reverse().find((x: any) => x.cumActual !== null);
+  const lastPlannedPoint = chartData.find((x: any) => x.month === lastActualPoint?.month);
 
   const sCurveSPI =
     lastActualPoint && lastPlannedPoint && lastPlannedPoint.cumPlanned > 0
@@ -59,121 +52,57 @@ const SCurve = ({ data }: any) => {
       ? lastActualPoint.cumActual - lastPlannedPoint.cumPlanned
       : 0;
 
-  const sCurveSPIColor =
-    sCurveSPI >= 1 ? '#22c55e' : sCurveSPI >= 0.9 ? '#facc15' : '#ef4444';
-
-  const sCurveStatus =
-    sCurveSPI >= 1 ? 'ON TRACK' : sCurveSPI >= 0.9 ? 'WARNING' : 'CRITICAL';
-
+  const sCurveSPIColor = sCurveSPI >= 1 ? C.green : sCurveSPI >= 0.9 ? C.yellow : C.red;
+  const sCurveStatus = sCurveSPI >= 1 ? 'ON TRACK' : sCurveSPI >= 0.9 ? 'WARNING' : 'CRITICAL';
   const currentMonth = lastActualPoint?.month || chartData[0]?.month;
 
   const sCurveKpiCard: CSSProperties = {
     padding: 12,
     minHeight: 72,
-    background: 'linear-gradient(135deg, rgba(42,74,103,.96), rgba(54,93,122,.95))',
-    border: '1px solid rgba(79,195,247,.22)',
-    boxShadow: '0 8px 22px rgba(0,0,0,.16)',
+    background: `linear-gradient(135deg, ${C.panel}, ${C.panel2})`,
+    border: `1px solid ${C.border}`,
+    boxShadow: '0 10px 24px rgba(0,0,0,.16)',
   };
 
   return (
     <>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 10,
-          marginBottom: 12,
-        }}
-      >
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
         <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">S-Curve Status</div>
-          <div className="kpi-value" style={{ fontSize: 22, color: sCurveSPIColor }}>
-            {sCurveStatus}
-          </div>
+          <div className="kpi-value" style={{ fontSize: 22, color: sCurveSPIColor }}>{sCurveStatus}</div>
         </div>
 
         <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">S-Curve Variance</div>
-          <div
-            className="kpi-value"
-            style={{
-              fontSize: 22,
-              color: sCurveVariance >= 0 ? '#22c55e' : '#ef4444',
-            }}
-          >
+          <div className="kpi-value" style={{ fontSize: 22, color: sCurveVariance >= 0 ? C.green : C.red }}>
             {sCurveVariance.toFixed(2)}%
           </div>
         </div>
 
         <div className="card" style={sCurveKpiCard}>
           <div className="kpi-title">Latest Update</div>
-          <div className="kpi-value" style={{ fontSize: 22, color: '#4FC3F7' }}>
-            {currentMonth || 'N/A'}
-          </div>
+          <div className="kpi-value" style={{ fontSize: 22, color: C.cyan }}>{currentMonth || 'N/A'}</div>
         </div>
       </div>
 
       <ResponsiveContainer width="100%" height={360}>
         <ComposedChart data={chartData} margin={{ top: 25, right: 30, left: 10, bottom: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e4a6d" />
-          <XAxis dataKey="month" stroke="#cbd5e1" tick={{ fontSize: 11 }} />
-          <YAxis stroke="#cbd5e1" tickFormatter={(v) => `${v}%`} />
-
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(186,209,223,.16)" />
+          <XAxis dataKey="month" stroke={C.light} tick={{ fontSize: 11 }} />
+          <YAxis stroke={C.light} tickFormatter={(v) => `${v}%`} />
           <Tooltip
-            contentStyle={{
-              background: '#14314a',
-              border: '1px solid #4FC3F7',
-              borderRadius: 10,
-              color: '#fff',
-            }}
+            contentStyle={{ background: '#263f52', border: `1px solid ${C.light}`, borderRadius: 10, color: '#fff' }}
             formatter={(value: any, name: any) => [`${Number(value).toFixed(2)}%`, name]}
           />
-
           <Legend />
-
-          <ReferenceLine
-            x={currentMonth}
-            stroke="#facc15"
-            strokeWidth={2}
-            strokeDasharray="6 6"
-          />
-
-          <Bar dataKey="planned" fill="#38bdf8" opacity={0.38} name="Monthly Planned %" />
-          <Bar dataKey="actual" fill="#22c55e" opacity={0.72} name="Monthly Actual %" />
-
-          <Line
-            type="monotone"
-            dataKey="cumPlanned"
-            stroke="#4FC3F7"
-            strokeWidth={4}
-            dot={false}
-            name="Cumulative Planned %"
-          >
-            <LabelList
-              dataKey="cumPlanned"
-              position="top"
-              formatter={(v: any) => `${Number(v).toFixed(0)}%`}
-              fill="#4FC3F7"
-            />
+          <ReferenceLine x={currentMonth} stroke={C.yellow} strokeWidth={2} strokeDasharray="6 6" />
+          <Bar dataKey="planned" fill={C.light} opacity={0.38} name="Monthly Planned %" />
+          <Bar dataKey="actual" fill={C.green} opacity={0.72} name="Monthly Actual %" />
+          <Line type="monotone" dataKey="cumPlanned" stroke={C.cyan} strokeWidth={4} dot={false} name="Cumulative Planned %">
+            <LabelList dataKey="cumPlanned" position="top" formatter={(v: any) => `${Number(v).toFixed(0)}%`} fill={C.cyan} />
           </Line>
-
-          <Line
-            type="monotone"
-            dataKey="cumActual"
-            stroke="#22C55E"
-            strokeWidth={4}
-            dot={{ r: 4 }}
-            connectNulls={false}
-            name="Cumulative Actual %"
-          >
-            <LabelList
-              dataKey="cumActual"
-              position="top"
-              formatter={(v: any) =>
-                v === null || v === undefined ? '' : `${Number(v).toFixed(0)}%`
-              }
-              fill="#22C55E"
-            />
+          <Line type="monotone" dataKey="cumActual" stroke={C.green} strokeWidth={4} dot={{ r: 4 }} connectNulls={false} name="Cumulative Actual %">
+            <LabelList dataKey="cumActual" position="top" formatter={(v: any) => v == null ? '' : `${Number(v).toFixed(0)}%`} fill={C.green} />
           </Line>
         </ComposedChart>
       </ResponsiveContainer>
@@ -182,69 +111,24 @@ const SCurve = ({ data }: any) => {
 };
 
 const SPITrend = ({ data }: any) => {
-  const formatMonth = (value: any) => {
-    const text = String(value || '');
-
-    if (text.includes('-')) {
-      const parts = text.split('-');
-
-      if (parts.length === 3) {
-        return `${parts[1]}-${parts[2]}`;
-      }
-    }
-
-    return text;
-  };
-
   const chartData = (data || [])
     .filter((row: any) => row.spi !== null && row.spi !== undefined && row.spi !== '')
-    .map((row: any) => ({
-      month: formatMonth(row.month),
-      spi: Number(row.spi || 0),
-    }));
+    .map((row: any) => ({ month: formatMonth(row.month), spi: Number(row.spi || 0) }));
 
   return (
     <ResponsiveContainer width="100%" height={260}>
       <AreaChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e4a6d" />
-        <XAxis dataKey="month" stroke="#cbd5e1" tick={{ fontSize: 11 }} />
-        <YAxis domain={[0, 1.3]} stroke="#cbd5e1" tick={{ fontSize: 11 }} />
-
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(186,209,223,.16)" />
+        <XAxis dataKey="month" stroke={C.light} tick={{ fontSize: 11 }} />
+        <YAxis domain={[0, 1.3]} stroke={C.light} tick={{ fontSize: 11 }} />
         <Tooltip
           formatter={(v: any) => Number(v).toFixed(2)}
-          contentStyle={{
-            background: '#14314a',
-            border: '1px solid #4FC3F7',
-            borderRadius: 10,
-            color: '#fff',
-          }}
+          contentStyle={{ background: '#263f52', border: `1px solid ${C.light}`, borderRadius: 10, color: '#fff' }}
         />
-
-        <ReferenceLine
-          y={1}
-          stroke="#22c55e"
-          strokeWidth={2}
-          label={{ value: 'Target 1.00', fill: '#22c55e' }}
-        />
-
-        <ReferenceLine y={0.9} stroke="#facc15" strokeDasharray="5 5" />
-
-        <Area
-          type="monotone"
-          dataKey="spi"
-          stroke="#4FC3F7"
-          fill="#4FC3F7"
-          fillOpacity={0.28}
-          strokeWidth={4}
-          dot={{ r: 4 }}
-          name="SPI"
-        >
-          <LabelList
-            dataKey="spi"
-            position="top"
-            formatter={(v: any) => Number(v).toFixed(2)}
-            fill="#4FC3F7"
-          />
+        <ReferenceLine y={1} stroke={C.green} strokeWidth={2} label={{ value: 'Target 1.00', fill: C.green }} />
+        <ReferenceLine y={0.9} stroke={C.yellow} strokeDasharray="5 5" />
+        <Area type="monotone" dataKey="spi" stroke={C.cyan} fill={C.cyan} fillOpacity={0.24} strokeWidth={4} dot={{ r: 4 }} name="SPI">
+          <LabelList dataKey="spi" position="top" formatter={(v: any) => Number(v).toFixed(2)} fill={C.cyan} />
         </Area>
       </AreaChart>
     </ResponsiveContainer>
@@ -270,35 +154,26 @@ export default function Dashboard() {
     { name: 'Phase-5', label: 'Phase 5', top: '10%', left: '73%' },
   ];
 
-  const getPhaseData = (phaseName: string) =>
-    phases.find((x: any) => x.Phase === phaseName) || null;
+  const getPhaseData = (phaseName: string) => phases.find((x: any) => x.Phase === phaseName) || null;
 
   const getPhaseColor = (phaseName: string) => {
     const spi = Number(getPhaseData(phaseName)?.SPI || 0);
-
-    if (spi >= 1) return '#22c55e';
-    if (spi >= 0.9) return '#facc15';
-    return '#ef4444';
+    if (spi >= 1) return C.green;
+    if (spi >= 0.9) return C.yellow;
+    return C.red;
   };
 
   const getPhaseStatus = (phaseName: string) => {
     const spi = Number(getPhaseData(phaseName)?.SPI || 0);
-
     if (spi >= 1) return 'On Track';
     if (spi >= 0.9) return 'Warning';
     return 'Critical';
   };
 
   const total = phases.length;
-
   const onTrack = phases.filter((x: any) => Number(x.SPI || 0) >= 1).length;
-
-  const warning = phases.filter(
-    (x: any) => Number(x.SPI || 0) >= 0.9 && Number(x.SPI || 0) < 1
-  ).length;
-
+  const warning = phases.filter((x: any) => Number(x.SPI || 0) >= 0.9 && Number(x.SPI || 0) < 1).length;
   const critical = phases.filter((x: any) => Number(x.SPI || 0) < 0.9).length;
-
   const overallSpi = Number(o.SPI || 0);
 
   const actualValue = Number(selectedPhase?.['Actual %'] || 0);
@@ -308,85 +183,43 @@ export default function Dashboard() {
   function phaseRiskScore(phase: any) {
     const spi = Number(phase.SPI || 0);
     const variance = Math.abs(Number(phase.Variance || 0));
-
-    const spiRisk = spi > 0 ? (1 - spi) * 100 : 100;
-    const varianceRisk = variance * 100;
-
-    return spiRisk + varianceRisk;
+    return (spi > 0 ? (1 - spi) * 100 : 100) + variance * 100;
   }
 
-  const mostCriticalPhase =
-    [...phases].sort((a: any, b: any) => phaseRiskScore(b) - phaseRiskScore(a))[0] ||
-    null;
-
+  const mostCriticalPhase = [...phases].sort((a: any, b: any) => phaseRiskScore(b) - phaseRiskScore(a))[0] || null;
   const healthScore = Math.max(0, Math.min(100, Math.round(overallSpi * 100)));
-
-  const healthColor =
-    healthScore >= 95 ? '#22c55e' : healthScore >= 80 ? '#facc15' : '#ef4444';
-
-  const projectHealth =
-    healthScore >= 95 ? 'HEALTHY' : healthScore >= 80 ? 'WATCH' : 'CRITICAL';
+  const healthColor = healthScore >= 95 ? C.green : healthScore >= 80 ? C.yellow : C.red;
+  const projectHealth = healthScore >= 95 ? 'HEALTHY' : healthScore >= 80 ? 'WATCH' : 'CRITICAL';
 
   const glassCard: CSSProperties = {
     padding: 14,
     minHeight: 92,
-    background: 'linear-gradient(135deg, rgba(42,74,103,.96), rgba(54,93,122,.95))',
-    border: '1px solid rgba(79,195,247,.24)',
+    background: `linear-gradient(135deg, ${C.panel}, ${C.panel2})`,
+    border: `1px solid ${C.border}`,
     boxShadow: '0 10px 28px rgba(0,0,0,.18)',
     backdropFilter: 'blur(10px)',
     transition: 'all .2s ease',
   };
 
   const softPanel: CSSProperties = {
-    background: 'linear-gradient(135deg, rgba(35,67,94,.96), rgba(49,87,115,.94))',
-    border: '1px solid rgba(79,195,247,.22)',
+    background: `linear-gradient(135deg, rgba(76,91,112,.72), rgba(74,115,133,.55))`,
+    border: `1px solid ${C.border}`,
     boxShadow: '0 10px 26px rgba(0,0,0,.16)',
   };
 
-  const Sparkline = ({ color = '#38bdf8' }: any) => (
-    <svg width="72" height="28" viewBox="0 0 72 28" fill="none">
-      <path
-        d="M2 22 L10 20 L18 17 L26 19 L34 9 L42 15 L50 13 L58 16 L70 12"
-        stroke={color}
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M2 22 L10 20 L18 17 L26 19 L34 9 L42 15 L50 13 L58 16 L70 12 L70 28 L2 28 Z"
-        fill={color}
-        opacity="0.12"
-      />
-    </svg>
-  );
-
   const MiniRing = ({ value, color }: any) => {
     const safeValue = Math.min(Number(value || 0), 1);
-
     return (
-      <div
-        style={{
-          width: 50,
-          height: 50,
-          borderRadius: '50%',
-          background: `conic-gradient(${color} ${safeValue * 100}%, #31506b 0)`,
-          display: 'grid',
-          placeItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: 37,
-            height: 37,
-            borderRadius: '50%',
-            background: '#1c3b54',
-            display: 'grid',
-            placeItems: 'center',
-            fontSize: 12,
-            fontWeight: 800,
-            color: 'white',
-          }}
-        >
+      <div style={{
+        width: 50, height: 50, borderRadius: '50%',
+        background: `conic-gradient(${color} ${safeValue * 100}%, rgba(186,209,223,.22) 0)`,
+        display: 'grid', placeItems: 'center',
+      }}>
+        <div style={{
+          width: 37, height: 37, borderRadius: '50%',
+          background: '#31475b', display: 'grid', placeItems: 'center',
+          fontSize: 12, fontWeight: 800, color: 'white',
+        }}>
           {Math.round(Number(value || 0) * 100)}%
         </div>
       </div>
@@ -397,38 +230,21 @@ export default function Dashboard() {
     const max = 1.5;
     const safeValue = Math.min(Number(value || 0), max);
     const percent = (safeValue / max) * 100;
-
-    const color =
-      safeValue >= 1 ? '#22c55e' : safeValue >= 0.9 ? '#facc15' : '#ef4444';
+    const color = safeValue >= 1 ? C.green : safeValue >= 0.9 ? C.yellow : C.red;
 
     return (
-      <div
-        style={{
-          width: 58,
-          height: 58,
-          borderRadius: '50%',
-          background: `conic-gradient(${color} ${percent}%, #31506b ${percent}% 100%)`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: 43,
-            height: 43,
-            borderRadius: '50%',
-            background: '#1c3b54',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>
-            {safeValue.toFixed(2)}
-          </div>
-          <div style={{ fontSize: 8, color: '#cbd5e1' }}>SPI</div>
+      <div style={{
+        width: 58, height: 58, borderRadius: '50%',
+        background: `conic-gradient(${color} ${percent}%, rgba(186,209,223,.22) ${percent}% 100%)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{
+          width: 43, height: 43, borderRadius: '50%',
+          background: '#31475b', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', flexDirection: 'column',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'white' }}>{safeValue.toFixed(2)}</div>
+          <div style={{ fontSize: 8, color: C.light }}>SPI</div>
         </div>
       </div>
     );
@@ -437,16 +253,7 @@ export default function Dashboard() {
   const MiniBars = () => (
     <div style={{ display: 'flex', alignItems: 'end', gap: 4, height: 38 }}>
       {[16, 23, 14, 30, 39, 25, 48].map((h, i) => (
-        <span
-          key={i}
-          style={{
-            width: 5,
-            height: h,
-            borderRadius: 4,
-            background: '#ef4444',
-            opacity: 0.88,
-          }}
-        />
+        <span key={i} style={{ width: 5, height: h, borderRadius: 4, background: C.red, opacity: 0.88 }} />
       ))}
     </div>
   );
@@ -458,196 +265,140 @@ export default function Dashboard() {
     const red = (critical / safeTotal) * 100;
 
     return (
-      <div
-        style={{
-          width: 128,
-          height: 128,
-          borderRadius: '50%',
-          background: `conic-gradient(#22c55e 0 ${green}%, #facc15 ${green}% ${
-            green + yellow
-          }%, #ef4444 ${green + yellow}% ${green + yellow + red}%, #31506b 0)`,
-          display: 'grid',
-          placeItems: 'center',
-          margin: '0 auto',
-        }}
-      >
-        <div
-          style={{
-            width: 86,
-            height: 86,
-            borderRadius: '50%',
-            background: '#1c3b54',
-            display: 'grid',
-            placeItems: 'center',
-            textAlign: 'center',
-          }}
-        >
+      <div style={{
+        width: 128, height: 128, borderRadius: '50%',
+        background: `conic-gradient(${C.green} 0 ${green}%, ${C.yellow} ${green}% ${green + yellow}%, ${C.red} ${green + yellow}% ${green + yellow + red}%, rgba(186,209,223,.22) 0)`,
+        display: 'grid', placeItems: 'center', margin: '0 auto',
+      }}>
+        <div style={{
+          width: 86, height: 86, borderRadius: '50%',
+          background: '#31475b', display: 'grid', placeItems: 'center', textAlign: 'center',
+        }}>
           <div style={{ fontSize: 26, fontWeight: 900 }}>{total}</div>
-          <div style={{ fontSize: 11, color: '#cbd5e1' }}>PHASES</div>
+          <div style={{ fontSize: 11, color: C.light }}>PHASES</div>
         </div>
       </div>
     );
   };
 
+  const Sparkline = ({ color = C.cyan }: any) => (
+    <svg width="72" height="28" viewBox="0 0 72 28" fill="none">
+      <path d="M2 22 L10 20 L18 17 L26 19 L34 9 L42 15 L50 13 L58 16 L70 12"
+        stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 22 L10 20 L18 17 L26 19 L34 9 L42 15 L50 13 L58 16 L70 12 L70 28 L2 28 Z"
+        fill={color} opacity="0.12" />
+    </svg>
+  );
+
   const ExecCard = ({ title, value, icon, color, trend, spark }: any) => (
-    <div
-      className="card"
-      style={{
-        ...glassCard,
-        border: `1px solid ${color}55`,
-        background: `linear-gradient(135deg, rgba(30,62,88,.96) 0%, rgba(43,80,108,.95) 72%, ${color}18 100%)`,
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-3px)';
-        e.currentTarget.style.boxShadow = `0 12px 30px ${color}24`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,.18)';
-      }}
-    >
+    <div className="card" style={{
+      ...glassCard,
+      border: `1px solid ${color}55`,
+      background: `linear-gradient(135deg, rgba(76,91,112,.62), rgba(74,115,133,.42), ${color}16)`,
+    }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
         <div>
           <div className="kpi-title">{title}</div>
-          <div
-            className="kpi-value"
-            style={{ color, fontSize: 28, marginTop: 7, lineHeight: 1 }}
-          >
-            {value}
-          </div>
+          <div className="kpi-value" style={{ color, fontSize: 28, marginTop: 7, lineHeight: 1 }}>{value}</div>
           {trend && <div style={{ color, fontSize: 12, marginTop: 7 }}>{trend}</div>}
         </div>
-
-        <div
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 13,
-            background: `${color}26`,
-            display: 'grid',
-            placeItems: 'center',
-            fontSize: 21,
-          }}
-        >
+        <div style={{
+          width: 42, height: 42, borderRadius: 13,
+          background: `${color}26`, display: 'grid', placeItems: 'center', fontSize: 21,
+        }}>
           {icon}
         </div>
       </div>
-
       {spark && <div style={{ marginTop: 10 }}>{spark}</div>}
+    </div>
+  );
+
+  const RecoveryPanel = () => (
+    <div className="card" style={{ ...glassCard, border: `1px solid ${C.yellow}55` }}>
+      <h3 style={{ marginTop: 0, color: C.cyan }}>Recovery Control Panel</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+        {[
+          ['Manpower Increase', 'In Progress', C.yellow],
+          ['Night Shift', 'Activated', C.green],
+          ['Resource Rebalancing', 'Required', C.red],
+          ['Weekly Monitoring', 'Active', C.green],
+        ].map(([title, status, color]) => (
+          <div key={title} style={{
+            padding: 12,
+            borderRadius: 14,
+            background: 'rgba(186,209,223,.08)',
+            border: `1px solid ${color}55`,
+          }}>
+            <div style={{ fontSize: 11, color: C.light, textTransform: 'uppercase', letterSpacing: 1 }}>
+              {title}
+            </div>
+            <div style={{ marginTop: 6, color, fontSize: 17, fontWeight: 900 }}>
+              {status}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 12, color: C.text, fontSize: 13, lineHeight: 1.7 }}>
+        Contractor recovery strategy is focused on manpower increase, night shift implementation,
+        productivity improvement, and weekly monitoring to reduce schedule variance and protect contractual milestones.
+      </div>
     </div>
   );
 
   return (
     <>
-      <div
-        className="card section"
-        style={{
-          padding: 18,
-          border: `1px solid ${healthColor}55`,
-          background: `linear-gradient(135deg, rgba(35,67,94,.96), rgba(49,87,115,.94), ${healthColor}18)`,
-          boxShadow: '0 12px 32px rgba(0,0,0,.18)',
-        }}
-      >
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.4fr .8fr .8fr .8fr',
-            gap: 14,
-            alignItems: 'center',
-          }}
-        >
+      <div className="card section" style={{
+        padding: 18,
+        border: `1px solid ${healthColor}55`,
+        background: `linear-gradient(135deg, rgba(76,91,112,.78), rgba(74,115,133,.58), ${healthColor}16)`,
+        boxShadow: '0 12px 32px rgba(0,0,0,.18)',
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1.4fr .8fr .8fr .8fr',
+          gap: 14,
+          alignItems: 'center',
+        }}>
           <div>
-            <div style={{ color: '#d5e7f5', fontSize: 12, letterSpacing: 2 }}>
+            <div style={{ color: C.light, fontSize: 12, letterSpacing: 2 }}>
               PROJECT CONTROL CENTER
             </div>
-
             <h1 style={{ margin: '6px 0 4px' }}>
               {p['Project Name'] || 'MASEEL MIXED-USE DEVELOPMENT'}
             </h1>
-
             <div className="small">
-              Contractor AlEnshaia | Client: {p.Client} | Consultant: {p.Consultant}
+              Contractor: {p.Contractor || 'AlEnshaiah'} | Client: {p.Client} | Consultant: {p.Consultant}
             </div>
           </div>
 
-          <ExecCard
-            title="Project Health"
-            value={`${healthScore}/100`}
-            icon={
-              <div
-                style={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: '50%',
-                  background: `conic-gradient(${healthColor} ${healthScore}%, #31506b 0)`,
-                  display: 'grid',
-                  placeItems: 'center',
-                }}
-              >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: '#1c3b54',
-                  }}
-                />
-              </div>
-            }
-            color={healthColor}
-            trend={projectHealth}
-          />
-
-          <ExecCard
-            title="Overall SPI"
-            value={overallSpi.toFixed(2)}
-            icon="⚡"
-            color={overallSpi >= 1 ? '#22c55e' : overallSpi >= 0.9 ? '#facc15' : '#ef4444'}
-            trend={overallSpi >= 1 ? 'Healthy schedule' : 'Schedule pressure'}
-          />
-
-          <ExecCard
-            title="Finish Variance"
-            value={`${o['Variance Finish Date'] || 0} Days`}
-            icon="⏱️"
-            color="#ef4444"
-            trend="Delay impact"
-          />
+          <ExecCard title="Project Health" value={`${healthScore}/100`} icon="◉" color={healthColor} trend={projectHealth} />
+          <ExecCard title="Overall SPI" value={overallSpi.toFixed(2)} icon="⚡" color={healthColor} trend={overallSpi >= 1 ? 'Healthy schedule' : 'Schedule pressure'} />
+          <ExecCard title="Finish Variance" value={`${o['Variance Finish Date'] || 0} Days`} icon="⏱️" color={C.red} trend="Delay impact" />
         </div>
       </div>
 
-      <h2 style={{ marginTop: 20, color: '#4FC3F7' }}>
+      <h2 style={{ marginTop: 20, color: C.cyan }}>
         MASEEL MASTERPLAN INTERACTIVE VIEW
       </h2>
 
       <div className="card section" style={softPanel}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '210px 1fr',
-            gap: 18,
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              padding: 14,
-              borderRadius: 14,
-              border: '1px solid rgba(79,195,247,.24)',
-              background: 'rgba(25,55,78,.88)',
-              lineHeight: 1.8,
-              fontSize: 13,
-            }}
-          >
-            <div>
-              <span style={{ color: '#22c55e' }}>●</span> On Track (SPI ≥ 1.00)
-            </div>
-            <div>
-              <span style={{ color: '#facc15' }}>●</span> Warning (0.90 ≤ SPI &lt; 1.00)
-            </div>
-            <div>
-              <span style={{ color: '#ef4444' }}>●</span> Critical (SPI &lt; 0.90)
-            </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '210px 1fr',
+          gap: 18,
+          alignItems: 'center',
+        }}>
+          <div style={{
+            padding: 14,
+            borderRadius: 14,
+            border: `1px solid ${C.border}`,
+            background: 'rgba(76,91,112,.36)',
+            lineHeight: 1.8,
+            fontSize: 13,
+          }}>
+            <div><span style={{ color: C.green }}>●</span> On Track (SPI ≥ 1.00)</div>
+            <div><span style={{ color: C.yellow }}>●</span> Warning (0.90 ≤ SPI &lt; 1.00)</div>
+            <div><span style={{ color: C.red }}>●</span> Critical (SPI &lt; 0.90)</div>
           </div>
 
           <div style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
@@ -658,7 +409,7 @@ export default function Dashboard() {
                 width: '100%',
                 display: 'block',
                 borderRadius: 18,
-                border: '1px solid rgba(79,195,247,.24)',
+                border: `1px solid ${C.border}`,
               }}
             />
 
@@ -673,12 +424,12 @@ export default function Dashboard() {
                   left: phase.left,
                   background: getPhaseColor(phase.name),
                   color: 'white',
-                  padding: '5px 8px',
+                  padding: '5px 9px',
                   borderRadius: 25,
-                  fontWeight: 700,
+                  fontWeight: 800,
                   fontSize: 12,
                   cursor: 'pointer',
-                  boxShadow: `0 0 10px ${getPhaseColor(phase.name)}`,
+                  boxShadow: `0 0 0 4px ${getPhaseColor(phase.name)}25, 0 0 12px rgba(0,0,0,.35)`,
                   transform: 'translate(-50%, -50%)',
                 }}
               >
@@ -690,29 +441,19 @@ export default function Dashboard() {
       </div>
 
       {selectedPhase && (
-        <div
-          style={{
-            marginTop: 18,
-            padding: 14,
-            borderRadius: 18,
-            ...softPanel,
-          }}
-        >
-          <h3
-            style={{
-              color: '#4FC3F7',
-              marginBottom: 12,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
+        <div style={{ marginTop: 18, padding: 14, borderRadius: 18, ...softPanel }}>
+          <h3 style={{
+            color: C.cyan,
+            marginBottom: 12,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
             <span>{selectedPhase.Phase} Overview</span>
-
             <button
               onClick={() => setSelectedPhase(null)}
               style={{
-                background: '#ef4444',
+                background: C.red,
                 color: 'white',
                 border: 0,
                 borderRadius: 8,
@@ -728,29 +469,23 @@ export default function Dashboard() {
             <div className="card" style={glassCard}>
               <div>
                 <div className="kpi-title">Actual %</div>
-                <div className="kpi-value" style={{ fontSize: 24 }}>
-                  {pct(actualValue)}
-                </div>
+                <div className="kpi-value" style={{ fontSize: 24 }}>{pct(actualValue)}</div>
               </div>
-              <MiniRing value={actualValue} color="#38bdf8" />
+              <MiniRing value={actualValue} color={C.cyan} />
             </div>
 
             <div className="card" style={glassCard}>
               <div>
                 <div className="kpi-title">Planned %</div>
-                <div className="kpi-value" style={{ fontSize: 24 }}>
-                  {pct(plannedValue)}
-                </div>
+                <div className="kpi-value" style={{ fontSize: 24 }}>{pct(plannedValue)}</div>
               </div>
-              <MiniRing value={plannedValue} color="#38bdf8" />
+              <MiniRing value={plannedValue} color={C.light} />
             </div>
 
             <div className="card" style={glassCard}>
               <div>
                 <div className="kpi-title">Variance %</div>
-                <div className="kpi-value status-bad" style={{ fontSize: 24 }}>
-                  {pct(selectedPhase.Variance)}
-                </div>
+                <div className="kpi-value" style={{ fontSize: 24, color: C.red }}>{pct(selectedPhase.Variance)}</div>
               </div>
               <MiniBars />
             </div>
@@ -758,9 +493,7 @@ export default function Dashboard() {
             <div className="card" style={glassCard}>
               <div>
                 <div className="kpi-title">SPI</div>
-                <div className="kpi-value" style={{ fontSize: 24 }}>
-                  {spiValue.toFixed(2)}
-                </div>
+                <div className="kpi-value" style={{ fontSize: 24 }}>{spiValue.toFixed(2)}</div>
               </div>
               <Gauge value={spiValue} />
             </div>
@@ -768,127 +501,97 @@ export default function Dashboard() {
             <div className="card" style={glassCard}>
               <div>
                 <div className="kpi-title">Status</div>
-                <div
-                  className="kpi-value"
-                  style={{ fontSize: 23, color: getPhaseColor(selectedPhase.Phase) }}
-                >
+                <div className="kpi-value" style={{ fontSize: 23, color: getPhaseColor(selectedPhase.Phase) }}>
                   {getPhaseStatus(selectedPhase.Phase)}
                 </div>
               </div>
-
               <div style={{ fontSize: 36, color: getPhaseColor(selectedPhase.Phase) }}>
-                {getPhaseStatus(selectedPhase.Phase) === 'On Track'
-                  ? '✓'
-                  : getPhaseStatus(selectedPhase.Phase) === 'Warning'
-                  ? '!'
-                  : '⚠'}
+                {getPhaseStatus(selectedPhase.Phase) === 'On Track' ? '✓' : getPhaseStatus(selectedPhase.Phase) === 'Warning' ? '!' : '⚠'}
               </div>
             </div>
+          </div>
+
+          <div style={{ marginTop: 12 }}>
+            <RecoveryPanel />
           </div>
         </div>
       )}
 
       <div className="section" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
         <div className="card" style={glassCard}>
-          <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>Phase Status Distribution</h3>
-
+          <h3 style={{ marginTop: 0, color: C.cyan }}>Phase Status Distribution</h3>
           <DonutChart />
-
           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 12, fontSize: 12 }}>
-            <span style={{ color: '#22c55e' }}>● {onTrack} On Track</span>
-            <span style={{ color: '#facc15' }}>● {warning} Warning</span>
-            <span style={{ color: '#ef4444' }}>● {critical} Critical</span>
+            <span style={{ color: C.green }}>● {onTrack} On Track</span>
+            <span style={{ color: C.yellow }}>● {warning} Warning</span>
+            <span style={{ color: C.red }}>● {critical} Critical</span>
           </div>
         </div>
 
         <div className="card" style={glassCard}>
-          <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>Critical Phase</h3>
-
-          <div style={{ fontSize: 34, fontWeight: 900, color: '#ef4444' }}>
+          <h3 style={{ marginTop: 0, color: C.cyan }}>Critical Phase</h3>
+          <div style={{ fontSize: 34, fontWeight: 900, color: C.red }}>
             {mostCriticalPhase?.Phase || 'N/A'}
           </div>
-
           <div className="small" style={{ marginTop: 8 }}>
-            SPI: {Number(mostCriticalPhase?.SPI || 0).toFixed(2)} | Variance:{' '}
-            {pct(mostCriticalPhase?.Variance || 0)}
+            SPI: {Number(mostCriticalPhase?.SPI || 0).toFixed(2)} | Variance: {pct(mostCriticalPhase?.Variance || 0)}
           </div>
-
           <div className="small" style={{ marginTop: 6 }}>
             Risk Score: {phaseRiskScore(mostCriticalPhase || {}).toFixed(1)}
           </div>
-
-          <div style={{ marginTop: 12, color: '#ffb4b4', fontSize: 13 }}>
+          <div style={{ marginTop: 12, color: '#ffd1d1', fontSize: 13 }}>
             Recovery actions are recommended.
           </div>
         </div>
 
         <div className="card" style={glassCard}>
-          <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>Project Status Commentary</h3>
-
-          <div style={{ color: '#f1f5f9', lineHeight: 1.7, fontSize: 13 }}>
+          <h3 style={{ marginTop: 0, color: C.cyan }}>Project Status Commentary</h3>
+          <div style={{ color: C.text, lineHeight: 1.7, fontSize: 13 }}>
             Project health is currently <b style={{ color: healthColor }}>{projectHealth}</b>.
-            Overall SPI is <b>{overallSpi.toFixed(2)}</b>, with{' '}
-            <b style={{ color: '#ef4444' }}>{critical}</b> critical phase(s). The most critical
-            area is <b style={{ color: '#ef4444' }}>{mostCriticalPhase?.Phase || 'N/A'}</b>.
-            Acceleration, resource rebalancing, and weekly monitoring are required to protect
-            contractual dates.
+            Overall SPI is <b>{overallSpi.toFixed(2)}</b>, with <b style={{ color: C.red }}>{critical}</b> critical phase(s).
+            The most critical area is <b style={{ color: C.red }}>{mostCriticalPhase?.Phase || 'N/A'}</b>.
+            Acceleration, resource rebalancing, and weekly monitoring are required to protect contractual dates.
           </div>
         </div>
       </div>
 
+      <div className="section">
+        <RecoveryPanel />
+      </div>
+
       <div className="section" style={{ display: 'grid', gridTemplateColumns: '1.25fr .75fr', gap: 12 }}>
         <div className="card" style={glassCard}>
-          <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>S-Curve Overview</h3>
+          <h3 style={{ marginTop: 0, color: C.cyan }}>S-Curve Overview</h3>
           <SCurve data={data.sCurve} />
         </div>
 
         <div className="card" style={glassCard}>
-          <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>Phase Physical Status</h3>
+          <h3 style={{ marginTop: 0, color: C.cyan }}>Phase Physical Status</h3>
 
           {phaseList.map((phase) => (
-            <div
-              key={phase.name}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '80px 1fr 70px',
-                gap: 10,
-                alignItems: 'center',
-                marginBottom: 10,
-              }}
-            >
+            <div key={phase.name} style={{
+              display: 'grid',
+              gridTemplateColumns: '80px 1fr 70px',
+              gap: 10,
+              alignItems: 'center',
+              marginBottom: 10,
+            }}>
               <b>{phase.label}</b>
-
-              <div
-                style={{
-                  height: 10,
-                  background: '#31506b',
-                  borderRadius: 20,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${Math.min(Number(getPhaseData(phase.name)?.SPI || 0), 1) * 100}%`,
-                    height: '100%',
-                    background: getPhaseColor(phase.name),
-                  }}
-                />
+              <div style={{ height: 10, background: 'rgba(186,209,223,.20)', borderRadius: 20, overflow: 'hidden' }}>
+                <div style={{
+                  width: `${Math.min(Number(getPhaseData(phase.name)?.SPI || 0), 1) * 100}%`,
+                  height: '100%',
+                  background: getPhaseColor(phase.name),
+                }} />
               </div>
-
               <span style={{ color: getPhaseColor(phase.name), fontSize: 12 }}>
                 {getPhaseStatus(phase.name)}
               </span>
             </div>
           ))}
 
-          <div
-            style={{
-              marginTop: 20,
-              borderTop: '1px solid rgba(255,255,255,.14)',
-              paddingTop: 15,
-            }}
-          >
-            <h3 style={{ marginTop: 0, color: '#4FC3F7' }}>SPI Trend</h3>
+          <div style={{ marginTop: 20, borderTop: `1px solid ${C.border}`, paddingTop: 15 }}>
+            <h3 style={{ marginTop: 0, color: C.cyan }}>SPI Trend</h3>
             <SPITrend data={data.spiTrend} />
           </div>
         </div>
@@ -899,55 +602,24 @@ export default function Dashboard() {
       </p>
 
       <div className="section" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-        <ExecCard title="Total Phases" value={total} icon="🏢" color="#38bdf8" trend="Project scope" />
-        <ExecCard title="On Track" value={onTrack} icon="✅" color="#22c55e" trend="SPI ≥ 1.00" />
-        <ExecCard title="Warning" value={warning} icon="⚠️" color="#facc15" trend="Needs monitoring" />
-        <ExecCard title="Critical" value={critical} icon="🚨" color="#ef4444" trend="Immediate action" />
+        <ExecCard title="Total Phases" value={total} icon="🏢" color={C.cyan} trend="Project scope" />
+        <ExecCard title="On Track" value={onTrack} icon="✅" color={C.green} trend="SPI ≥ 1.00" />
+        <ExecCard title="Warning" value={warning} icon="⚠️" color={C.yellow} trend="Needs monitoring" />
+        <ExecCard title="Critical" value={critical} icon="🚨" color={C.red} trend="Immediate action" />
       </div>
 
       <div className="section" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-        <ExecCard
-          title="Planned Progress"
-          value={pct(o['Planned %'])}
-          icon="🎯"
-          color="#38bdf8"
-          trend="↑ Baseline"
-          spark={<Sparkline color="#38bdf8" />}
-        />
-
-        <ExecCard
-          title="Actual Progress"
-          value={pct(o['Actual %'])}
-          icon="📈"
-          color="#22c55e"
-          trend="↑ Current"
-          spark={<Sparkline color="#22c55e" />}
-        />
-
-        <ExecCard
-          title="Variance"
-          value={pct(o['Variance %'])}
-          icon="📉"
-          color="#ef4444"
-          trend="↓ Behind plan"
-          spark={<Sparkline color="#ef4444" />}
-        />
-
-        <ExecCard
-          title="Overall SPI"
-          value={overallSpi.toFixed(2)}
-          icon="⚡"
-          color="#a855f7"
-          trend="Schedule index"
-          spark={<Sparkline color="#a855f7" />}
-        />
+        <ExecCard title="Planned Progress" value={pct(o['Planned %'])} icon="🎯" color={C.light} trend="↑ Baseline" spark={<Sparkline color={C.light} />} />
+        <ExecCard title="Actual Progress" value={pct(o['Actual %'])} icon="📈" color={C.cyan} trend="↑ Current" spark={<Sparkline color={C.cyan} />} />
+        <ExecCard title="Variance" value={pct(o['Variance %'])} icon="📉" color={C.red} trend="↓ Behind plan" spark={<Sparkline color={C.red} />} />
+        <ExecCard title="Overall SPI" value={overallSpi.toFixed(2)} icon="⚡" color={healthColor} trend="Schedule index" spark={<Sparkline color={healthColor} />} />
       </div>
 
       <div className="section" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-        <ExecCard title="BL Finish" value={o['BL Finish Date']} icon="📅" color="#38bdf8" trend="Contract baseline" />
-        <ExecCard title="Forecast Finish" value={o['Forecast Finish Date']} icon="📈" color="#facc15" trend="Updated forecast" />
-        <ExecCard title="Finish Variance" value={`${o['Variance Finish Date']} Days`} icon="⏱️" color="#ef4444" trend="Delay impact" />
-        <ExecCard title="Remaining Time" value={`${o['Remaining Time']} Days`} icon="⌛" color="#38bdf8" trend="To completion" />
+        <ExecCard title="BL Finish" value={o['BL Finish Date']} icon="📅" color={C.light} trend="Contract baseline" />
+        <ExecCard title="Forecast Finish" value={o['Forecast Finish Date']} icon="📈" color={C.yellow} trend="Updated forecast" />
+        <ExecCard title="Finish Variance" value={`${o['Variance Finish Date']} Days`} icon="⏱️" color={C.red} trend="Delay impact" />
+        <ExecCard title="Remaining Time" value={`${o['Remaining Time']} Days`} icon="⌛" color={C.cyan} trend="To completion" />
       </div>
 
       <div className="card section" style={glassCard}>
@@ -956,62 +628,38 @@ export default function Dashboard() {
         {phases.map((ph: any) => {
           const actual = Number(ph['Actual %'] || 0);
           const planned = Number(ph['Planned %'] || 0);
-
           const ratio = planned > 0 ? Math.min((actual / planned) * 100, 100) : 0;
-
-          const color = ratio >= 95 ? '#22c55e' : ratio >= 80 ? '#facc15' : '#ef4444';
+          const color = ratio >= 95 ? C.green : ratio >= 80 ? C.yellow : C.red;
 
           return (
-            <div
-              key={ph.Phase}
-              style={{
-                marginTop: 8,
-                paddingBottom: 8,
-                borderBottom: '1px solid rgba(255,255,255,.14)',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 6,
-                }}
-              >
+            <div key={ph.Phase} style={{
+              marginTop: 8,
+              paddingBottom: 8,
+              borderBottom: `1px solid ${C.border}`,
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 6,
+              }}>
                 <strong style={{ fontSize: 14, color: '#fff' }}>{ph.Phase}</strong>
-
-                <div style={{ fontSize: 12, color: '#e2e8f0' }}>
+                <div style={{ fontSize: 12, color: C.light }}>
                   Actual {pct(actual)} | Planned {pct(planned)}
                 </div>
               </div>
 
-              <div
-                style={{
-                  height: 12,
-                  background: '#31506b',
+              <div style={{ height: 12, background: 'rgba(186,209,223,.20)', borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{
+                  width: `${ratio}%`,
+                  height: '100%',
+                  background: color,
                   borderRadius: 999,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${ratio}%`,
-                    height: '100%',
-                    background: color,
-                    borderRadius: 999,
-                    transition: 'all .5s ease',
-                  }}
-                />
+                  transition: 'all .5s ease',
+                }} />
               </div>
 
-              <div
-                style={{
-                  marginTop: 4,
-                  fontSize: 10,
-                  color,
-                  fontWeight: 500,
-                }}
-              >
+              <div style={{ marginTop: 4, fontSize: 10, color, fontWeight: 500 }}>
                 SPI: {Number(ph.SPI || 0).toFixed(2)}
               </div>
             </div>
