@@ -33,7 +33,7 @@ const BRAND = {
   text: '#f8fafc',
 };
 
-const SCurve = ({ data }: any) => {
+const SCurve = ({ data, overallSpi }: any) => {
   const formatMonth = (value: any) => {
     const text = String(value || '');
 
@@ -64,10 +64,7 @@ const SCurve = ({ data }: any) => {
     (x: any) => x.month === lastActualPoint?.month
   );
 
-  const sCurveSPI =
-    lastActualPoint && lastPlannedPoint && lastPlannedPoint.cumPlanned > 0
-      ? lastActualPoint.cumActual / lastPlannedPoint.cumPlanned
-      : 0;
+  const sCurveSPI = Number(overallSpi || 0);
 
   const sCurveVariance =
     lastActualPoint && lastPlannedPoint
@@ -75,10 +72,10 @@ const SCurve = ({ data }: any) => {
       : 0;
 
   const sCurveSPIColor =
-    sCurveSPI >= 1 ? BRAND.green : sCurveSPI >= 0.9 ? BRAND.yellow : BRAND.red;
+    sCurveSPI >= .95 ? BRAND.green : sCurveSPI >= 0.85 ? BRAND.yellow : BRAND.red;
 
   const sCurveStatus =
-    sCurveSPI >= 1 ? 'ON TRACK' : sCurveSPI >= 0.9 ? 'WARNING' : 'CRITICAL';
+    sCurveSPI >= .95 ? 'ON TRACK' : sCurveSPI >= 0.85 ? 'WARNING' : 'CRITICAL';
 
   const currentMonth = lastActualPoint?.month || chartData[0]?.month;
 
@@ -891,7 +888,96 @@ const finishVarianceDays = getDaysVariance();
                 boxShadow: '0 16px 34px rgba(0,0,0,.22)',
               }}
             />
+                <svg
+  viewBox="0 0 100 100"
+  preserveAspectRatio="none"
+  style={{
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+    zIndex: 3,
+  }}
+>
+  <path
+    d="M35 70 C45 58, 55 48, 63 36 C68 28, 72 18, 74 10"
+    fill="none"
+    stroke="rgba(55, 110, 130, 0.35)"
+    strokeWidth="0.48"
+    strokeLinecap="round"
+    strokeDasharray="1.2 5"
+    style={{
+      filter: 'drop-shadow(0 0 3px rgba(62, 116, 136, 0.4))',
+      animation: 'executiveDashMove 12s linear infinite',
+    }}
+  />
+</svg>
+<div
+  style={{
+    position: 'absolute',
+    top: 18,
+    right: 18,
+    width: 150,
+    padding: 4,
+    borderRadius: 15,
+    background: 'rgba(20, 34, 48, 0.68)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(186,209,223,.22)',
+    boxShadow: '0 18px 40px rgba(0,0,0,.28)',
+    zIndex: 4,
+  }}
+>
+  <div
+    style={{
+      fontSize: 6,
+      letterSpacing: 2.4,
+      color: BRAND.light,
+      textTransform: 'uppercase',
+      marginBottom: 8,
+    }}
+  >
+    Overall Project Status
+  </div>
 
+  <div
+    style={{
+      fontSize: 18,
+      fontWeight: 700,
+      color: healthColor,
+      lineHeight: 1,
+    }}
+  >
+    {projectHealth}
+  </div>
+
+  <div
+    style={{
+      marginTop: 8,
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 10,
+    }}
+  >
+    <div>
+      <div style={{ fontSize: 12, color: BRAND.light }}>SPI</div>
+      <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>
+        {overallSpi.toFixed(2)}
+      </div>
+    </div>
+
+    <div>
+      <div style={{ fontSize: 8, color: BRAND.light }}>Delay</div>
+      <div style={{ fontSize: 16, fontWeight: 900, color: finishVarianceDays <= 0 ? BRAND.green : BRAND.red }}>
+        {finishVarianceDays}
+      </div>
+    </div>
+  </div>
+
+  <div
+  >
+  </div>
+</div>
             {phaseList.map((phase) => (
               <div
                 key={phase.name}
@@ -914,7 +1000,26 @@ const finishVarianceDays = getDaysVariance();
                   userSelect: 'none',
                 }}
               >
-                {phase.label}
+                <span
+  style={{
+    position: 'relative',
+    zIndex: 2,
+  }}
+>
+  {phase.label}
+</span>
+
+<span
+  style={{
+    position: 'absolute',
+    inset: -8,
+    borderRadius: 999,
+    background: getPhaseColor(phase.name),
+    opacity: 0.35,
+    animation: 'pulsePhase 2s infinite',
+    zIndex: 1,
+  }}
+/>
               </div>
             ))}
           </div>
@@ -1175,7 +1280,7 @@ const finishVarianceDays = getDaysVariance();
       >
         <div className="card" style={glassCard}>
           <h3 style={{ marginTop: 0, color: BRAND.cyan }}>S-Curve Overview</h3>
-          <SCurve data={data.sCurve} />
+          <SCurve data={data.sCurve} overallSpi={overallSpi} />
         </div>
 
         <div className="card" style={glassCard}>

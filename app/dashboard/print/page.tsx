@@ -14,7 +14,20 @@ import {
   AreaChart,
   Area,
   ReferenceLine,
+  LabelList,
 } from 'recharts';
+
+const BRAND = {
+  primary: '#4C5B70',
+  secondary: '#4A7385',
+  light: '#BAD1DF',
+  dark: '#102A3D',
+  blue: '#2563eb',
+  cyan: '#0284c7',
+  green: '#16a34a',
+  yellow: '#f59e0b',
+  red: '#dc2626',
+};
 
 function formatValue(value: any) {
   if (value === null || value === undefined || value === '') return '-';
@@ -34,14 +47,19 @@ function formatMonth(value: any) {
   return text;
 }
 
+function daysBetween(start: any, finish: any) {
+  const s = new Date(start);
+  const f = new Date(finish);
+
+  if (isNaN(s.getTime()) || isNaN(f.getTime())) return 0;
+
+  return Math.round((f.getTime() - s.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 function phaseRiskScore(phase: any) {
   const spi = Number(phase.SPI || 0);
   const variance = Math.abs(Number(phase.Variance || 0));
-
-  const spiRisk = spi > 0 ? (1 - spi) * 100 : 100;
-  const varianceRisk = variance * 100;
-
-  return spiRisk + varianceRisk;
+  return (spi > 0 ? (1 - spi) * 100 : 100) + variance * 100;
 }
 
 function SCurvePrint({ data }: any) {
@@ -54,32 +72,55 @@ function SCurvePrint({ data }: any) {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={360}>
-      <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" />
-        <XAxis dataKey="month" stroke="#334155" tick={{ fontSize: 11 }} />
+    <ResponsiveContainer width="100%" height={390}>
+      <ComposedChart data={chartData} margin={{ top: 38, right: 35, left: 10, bottom: 15 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#d7e3ec" />
+        <XAxis dataKey="month" stroke="#334155" tick={{ fontSize: 10 }} />
         <YAxis stroke="#334155" tickFormatter={(v) => `${v}%`} />
         <Tooltip formatter={(value: any) => `${Number(value).toFixed(2)}%`} />
         <Legend />
-        <Bar dataKey="planned" fill="#38bdf8" opacity={0.45} name="Monthly Planned %" />
-        <Bar dataKey="actual" fill="#22c55e" opacity={0.7} name="Monthly Actual %" />
+
+        <Bar dataKey="planned" fill="#60a5fa" opacity={0.35} name="Monthly Planned %" />
+        <Bar dataKey="actual" fill={BRAND.green} opacity={0.7} name="Monthly Actual %" />
+
         <Line
           type="monotone"
           dataKey="cumPlanned"
-          stroke="#0284c7"
+          stroke={BRAND.cyan}
           strokeWidth={3}
-          dot={false}
+          dot={{ r: 3 }}
           name="Cumulative Planned %"
-        />
+        >
+          <LabelList
+            dataKey="cumPlanned"
+            position="top"
+            formatter={(v: any) => `${Number(v).toFixed(0)}%`}
+            fill={BRAND.cyan}
+            fontSize={10}
+            fontWeight={700}
+          />
+        </Line>
+
         <Line
           type="monotone"
           dataKey="cumActual"
-          stroke="#16a34a"
+          stroke={BRAND.green}
           strokeWidth={3}
           dot={{ r: 3 }}
           connectNulls={false}
           name="Cumulative Actual %"
-        />
+        >
+          <LabelList
+            dataKey="cumActual"
+            position="top"
+            formatter={(v: any) =>
+              v === null || v === undefined ? '' : `${Number(v).toFixed(0)}%`
+            }
+            fill={BRAND.green}
+            fontSize={10}
+            fontWeight={700}
+          />
+        </Line>
       </ComposedChart>
     </ResponsiveContainer>
   );
@@ -94,24 +135,35 @@ function SPITrendPrint({ data }: any) {
     }));
 
   return (
-    <ResponsiveContainer width="100%" height={330}>
-      <AreaChart data={chartData} margin={{ top: 20, right: 25, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" />
+    <ResponsiveContainer width="100%" height={360}>
+      <AreaChart data={chartData} margin={{ top: 40, right: 30, left: 0, bottom: 10 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#d7e3ec" />
         <XAxis dataKey="month" stroke="#334155" tick={{ fontSize: 11 }} />
         <YAxis domain={[0, 1.3]} stroke="#334155" tick={{ fontSize: 11 }} />
         <Tooltip formatter={(v: any) => Number(v).toFixed(2)} />
-        <ReferenceLine y={1} stroke="#16a34a" strokeWidth={2} />
-        <ReferenceLine y={0.9} stroke="#f59e0b" strokeDasharray="5 5" />
+
+        <ReferenceLine y={1} stroke={BRAND.green} strokeWidth={2} label={{ value: 'Target 1.00', fill: BRAND.green }} />
+        <ReferenceLine y={0.9} stroke={BRAND.yellow} strokeDasharray="5 5" />
+
         <Area
           type="monotone"
           dataKey="spi"
-          stroke="#0284c7"
-          fill="#38bdf8"
-          fillOpacity={0.25}
+          stroke={BRAND.cyan}
+          fill="#93c5fd"
+          fillOpacity={0.35}
           strokeWidth={3}
           dot={{ r: 4 }}
           name="SPI"
-        />
+        >
+          <LabelList
+            dataKey="spi"
+            position="top"
+            formatter={(v: any) => Number(v).toFixed(2)}
+            fill={BRAND.dark}
+            fontSize={11}
+            fontWeight={800}
+          />
+        </Area>
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -136,11 +188,11 @@ export default function PrintReport() {
   const healthScore = Math.max(0, Math.min(100, Math.round(overallSpi * 100)));
 
   const projectHealth =
-    healthScore >= 95 ? 'HEALTHY' : healthScore >= 80 ? 'WATCH' : 'CRITICAL';
+    overallSpi >= 0.95 ? 'HEALTHY' : overallSpi >= 0.9 ? 'WATCH' : 'CRITICAL';
 
-  const onTrack = phases.filter((x: any) => Number(x.SPI || 0) >= 1).length;
+  const onTrack = phases.filter((x: any) => Number(x.SPI || 0) >= 0.95).length;
   const warning = phases.filter(
-    (x: any) => Number(x.SPI || 0) >= 0.9 && Number(x.SPI || 0) < 1
+    (x: any) => Number(x.SPI || 0) >= 0.9 && Number(x.SPI || 0) < 0.95
   ).length;
   const critical = phases.filter((x: any) => Number(x.SPI || 0) < 0.9).length;
 
@@ -153,31 +205,288 @@ export default function PrintReport() {
 
   const criticalLookahead = lookahead.filter((r: any) => isCritical(r.Critical));
   const criticalActivities = activities.filter((r: any) => isCritical(r.Critical));
-const blFinish = new Date(overall['BL Finish Date']);
-const forecastFinish = new Date(overall['Forecast Finish Date']);
 
-const finishVarianceDays =
-  Math.round(
-    (forecastFinish.getTime() - blFinish.getTime()) /
-    (1000 * 60 * 60 * 24)
+  const finishVarianceDays = daysBetween(
+    overall['BL Finish Date'],
+    overall['Forecast Finish Date']
   );
+
   return (
     <div className="print-report">
+      <style>{`
+        .print-report {
+          background: #e8eef4;
+          color: #0f172a;
+          font-family: Arial, Helvetica, sans-serif;
+          padding: 24px;
+        }
+
+        .print-cover,
+        .print-page {
+          background: white;
+          border-radius: 18px;
+          padding: 34px;
+          margin: 0 auto 28px;
+          max-width: 1180px;
+          box-shadow: 0 20px 55px rgba(15, 23, 42, .12);
+          border: 1px solid #dbe5ee;
+          page-break-after: always;
+        }
+
+        .print-cover {
+          min-height: 780px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .report-logo-box {
+          height: 78px;
+          width: 230px;
+          border: 1px solid #d8e4ee;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f8fafc;
+        }
+
+        .report-logo-box img {
+          max-height: 62px;
+          max-width: 190px;
+          object-fit: contain;
+        }
+
+        .cover-title {
+          margin-top: 70px;
+          border-left: 8px solid ${BRAND.secondary};
+          padding-left: 26px;
+        }
+
+        .cover-title h1 {
+          font-size: 48px;
+          margin: 0;
+          color: ${BRAND.primary};
+          line-height: 1.1;
+        }
+
+        .cover-title h2 {
+          font-size: 28px;
+          margin: 14px 0 0;
+          color: ${BRAND.secondary};
+        }
+
+        .cover-meta {
+          margin-top: 45px;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 14px;
+        }
+
+        .cover-meta div {
+          padding: 16px;
+          background: #f8fafc;
+          border: 1px solid #dbe5ee;
+          border-radius: 14px;
+        }
+
+        .cover-meta span,
+        .print-kpi-grid span {
+          display: block;
+          text-transform: uppercase;
+          color: ${BRAND.primary};
+          font-size: 12px;
+          letter-spacing: .7px;
+          margin-bottom: 7px;
+        }
+
+        .cover-meta strong {
+          font-size: 18px;
+          color: #0f172a;
+        }
+
+        .print-page h2 {
+          font-size: 24px;
+          color: #020617;
+          border-bottom: 4px solid #2563eb;
+          padding-bottom: 10px;
+          margin-top: 0;
+        }
+
+        .print-page h3 {
+          color: ${BRAND.primary};
+          font-size: 18px;
+          margin-top: 22px;
+        }
+
+        .print-kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+          margin: 22px 0;
+        }
+
+        .print-kpi-grid div {
+          border: 1px solid #d8e4ee;
+          border-left: 5px solid #2563eb;
+          border-radius: 14px;
+          padding: 16px;
+          background: #f8fafc;
+          min-height: 72px;
+        }
+
+        .print-kpi-grid strong {
+          font-size: 26px;
+          color: #020617;
+        }
+
+        .status-healthy { color: ${BRAND.green} !important; }
+        .status-watch { color: ${BRAND.yellow} !important; }
+        .status-critical { color: ${BRAND.red} !important; }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 18px;
+          font-size: 12px;
+        }
+
+        th {
+          background: ${BRAND.dark};
+          color: white;
+          text-align: left;
+          padding: 10px;
+          border: 1px solid #ffffff33;
+        }
+
+        td {
+          padding: 9px;
+          border: 1px solid #dbe5ee;
+          vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+          background: #f8fafc;
+        }
+
+        .executive-note {
+          background: #f8fafc;
+          border: 1px solid #dbe5ee;
+          border-left: 6px solid ${BRAND.secondary};
+          border-radius: 14px;
+          padding: 18px;
+          line-height: 1.75;
+        }
+
+        .recovery-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          margin-top: 18px;
+        }
+
+        .recovery-grid div {
+          border-radius: 14px;
+          padding: 14px;
+          background: #f8fafc;
+          border: 1px solid #dbe5ee;
+        }
+
+        .recovery-grid strong {
+          display: block;
+          margin-top: 6px;
+          font-size: 18px;
+        }
+
+        .print-photo-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 18px;
+        }
+
+        .print-photo-card {
+          border: 1px solid #dbe5ee;
+          border-radius: 16px;
+          overflow: hidden;
+          background: #f8fafc;
+        }
+
+        .print-photo-card img {
+          width: 100%;
+          height: 240px;
+          object-fit: cover;
+          display: block;
+        }
+
+        .print-photo-card h3,
+        .print-photo-card p {
+          margin-left: 14px;
+          margin-right: 14px;
+        }
+
+        .print-action {
+          margin-top: 45px;
+          align-self: flex-start;
+          background: #2563eb;
+          color: white;
+          border: 0;
+          padding: 14px 24px;
+          border-radius: 12px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        @media print {
+          body {
+            background: white !important;
+          }
+
+          .print-report {
+            background: white !important;
+            padding: 0 !important;
+          }
+
+          .print-cover,
+          .print-page {
+            max-width: none;
+            box-shadow: none;
+            border-radius: 0;
+            margin: 0;
+            page-break-after: always;
+          }
+
+          .print-action {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       <div className="print-cover">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <img src="/Contractor Logo.png" alt="Contractor Logo" style={{ height: 60 }} />
-          <img src="/Client Logo.png" alt="Client Logo" style={{ height: 60 }} />
-          <img src="/Consultant Logo.png" alt="Consultant Logo" style={{ height: 60 }} />
+          <div className="report-logo-box">
+            <img src="/Contractor Logo.png" alt="Contractor Logo" />
+          </div>
+          <div className="report-logo-box">
+            <img src="/Client Logo.png" alt="Client Logo" />
+          </div>
+          <div className="report-logo-box">
+            <img src="/Consultant Logo.png" alt="Consultant Logo" />
+          </div>
         </div>
 
-        <h1>{project['Project Name'] || 'MASEEL MIXED-USE DEVELOPMENT'}</h1>
-        <h2>Executive Project Dashboard Report</h2>
+        <div className="cover-title">
+          <h1>{project['Project Name'] || 'MASEEL MIXED-USE DEVELOPMENT'}</h1>
+          <h2>Executive Project Dashboard Report</h2>
+        </div>
 
-        <p>Contractor: {project.Contractor || 'AlEnshaiah'}</p>
-        <p>Client: {project.Client || 'Oroub Investment Company'}</p>
-        <p>Consultant: {project.Consultant || 'Saudi Diyar Consultants'}</p>
-        <p>Prepared By: Planning Department</p>
-        <p>Report Date: {new Date().toLocaleDateString()}</p>
+        <div className="cover-meta">
+          <div><span>Contractor</span><strong>{project.Contractor || 'AlEnshaiah'}</strong></div>
+          <div><span>Client</span><strong>{project.Client || 'Oroub Investment Company'}</strong></div>
+          <div><span>Consultant</span><strong>{project.Consultant || 'Saudi Diyar Consultants'}</strong></div>
+          <div><span>Report Date</span><strong>{new Date().toLocaleDateString()}</strong></div>
+          <div><span>Prepared By</span><strong>Planning Department</strong></div>
+          <div><span>Report Type</span><strong>Executive Dashboard Report</strong></div>
+        </div>
 
         <button className="print-action" onClick={() => window.print()}>
           Export / Save as PDF
@@ -189,12 +498,22 @@ const finishVarianceDays =
 
         <div className="print-kpi-grid">
           <div><span>Project Health</span><strong>{healthScore}/100</strong></div>
-          <div><span>Health Status</span><strong>{projectHealth}</strong></div>
+          <div>
+            <span>Health Status</span>
+            <strong
+              className={
+                projectHealth === 'HEALTHY'
+                  ? 'status-healthy'
+                  : projectHealth === 'WATCH'
+                  ? 'status-watch'
+                  : 'status-critical'
+              }
+            >
+              {projectHealth}
+            </strong>
+          </div>
           <div><span>Overall SPI</span><strong>{overallSpi.toFixed(2)}</strong></div>
-        <div>
-  <span>Finish Variance</span>
-  <strong>{finishVarianceDays} Days</strong>
-</div>
+          <div><span>Finish Variance</span><strong>{finishVarianceDays} Days</strong></div>
         </div>
 
         <div className="print-kpi-grid">
@@ -224,7 +543,7 @@ const finishVarianceDays =
         </table>
 
         <h3>Executive Commentary</h3>
-        <p>
+        <p className="executive-note">
           Project health is currently <b>{projectHealth}</b>. Overall SPI is{' '}
           <b>{overallSpi.toFixed(2)}</b>, with <b>{critical}</b> critical phase(s).
           The most critical area is <b>{mostCriticalPhase?.Phase || '-'}</b>.
@@ -406,7 +725,7 @@ const finishVarianceDays =
                 <td>{formatValue(d['Phase Delay/Ahead'])}</td>
                 <td>{formatValue(d['BL Finish Date'])}</td>
                 <td>{formatValue(d['Forecast Finish Date'])}</td>
-                <td>{formatValue(d['Variance Finish Date'])}</td>
+                <td>{daysBetween(d['BL Finish Date'], d['Forecast Finish Date'])} Days</td>
                 <td>{formatValue(d['Delay Reason'])}</td>
                 <td>{formatValue(d['Recovery Action'])}</td>
                 <td>{formatValue(d.Responsible)}</td>
@@ -463,16 +782,19 @@ const finishVarianceDays =
       <section className="print-page">
         <h2>11. Recovery Plan Summary</h2>
 
-        <p>
+        <div className="recovery-grid">
+          <div><span>Manpower Increase</span><strong style={{ color: BRAND.yellow }}>In Progress</strong></div>
+          <div><span>Night Shift</span><strong style={{ color: BRAND.green }}>Activated</strong></div>
+          <div><span>Resource Rebalancing</span><strong style={{ color: BRAND.red }}>Required</strong></div>
+          <div><span>Weekly Monitoring</span><strong style={{ color: BRAND.green }}>Active</strong></div>
+        </div>
+
+        <p className="executive-note" style={{ marginTop: 18 }}>
           The Contractor has initiated schedule recovery measures through manpower
           increase, productivity enhancement, close progress monitoring, and resource
-          optimization across critical work fronts.
-        </p>
-
-        <p>
-          Recent performance indicates positive improvement trends, and the Contractor
-          remains committed to minimizing schedule variance and recovering delays while
-          maintaining quality and safety requirements.
+          optimization across critical work fronts. Recent performance indicates positive
+          improvement trends, and the Contractor remains committed to minimizing schedule
+          variance and recovering delays while maintaining quality and safety requirements.
         </p>
       </section>
     </div>
