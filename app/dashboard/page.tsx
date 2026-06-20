@@ -326,6 +326,19 @@ export default function Dashboard() {
   const critical = phases.filter((x: any) => Number(x.SPI || 0) < 0.9).length;
 
   const overallSpi = Number(o.SPI || 0);
+  const getDaysVariance = () => {
+  const bl = new Date(o['BL Finish Date']);
+  const forecast = new Date(o['Forecast Finish Date']);
+
+  if (isNaN(bl.getTime()) || isNaN(forecast.getTime())) {
+    return Number(o['Variance Finish Date'] || 0);
+  }
+
+  const diff = forecast.getTime() - bl.getTime();
+  return Math.round(diff / (1000 * 60 * 60 * 24));
+};
+
+const finishVarianceDays = getDaysVariance();
 
   const actualValue = Number(selectedPhase?.['Actual %'] || 0);
   const plannedValue = Number(selectedPhase?.['Planned %'] || 0);
@@ -805,15 +818,15 @@ export default function Dashboard() {
             title="Overall SPI"
             value={overallSpi.toFixed(2)}
             icon="⚡"
-            color={overallSpi >= 1 ? BRAND.green : overallSpi >= 0.9 ? BRAND.yellow : BRAND.red}
+            color={overallSpi >= .95 ? BRAND.green : overallSpi >= 0.8 ? BRAND.yellow : BRAND.red}
             trend={overallSpi >= 1 ? 'Healthy schedule' : 'Schedule pressure'}
           />
 
           <ExecCard
             title="Finish Variance"
-            value={`${o['Variance Finish Date'] || 0} Days`}
+            value={`${finishVarianceDays} Days`}
             icon="⏱️"
-            color={BRAND.red}
+            color={finishVarianceDays <= 0 ? BRAND.green : BRAND.red}
             trend="Delay impact"
           />
         </div>
