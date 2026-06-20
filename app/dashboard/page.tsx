@@ -289,11 +289,11 @@ export default function Dashboard() {
   const phases = data.phases || [];
 
   const phaseList = [
-    { name: 'Phase-1', label: 'Phase 1', top: '22%', left: '53%' },
-    { name: 'Phase-2', label: 'Phase 2', top: '70%', left: '43%' },
+    { name: 'Phase-1', label: 'Phase 1', top: '22%', left: '58%' },
+    { name: 'Phase-2', label: 'Phase 2', top: '70%', left: '35%' },
     { name: 'Phase-3', label: 'Phase 3', top: '36%', left: '63%' },
     { name: 'Phase-4', label: 'Phase 4', top: '54%', left: '47%' },
-    { name: 'Phase-5', label: 'Phase 5', top: '12%', left: '72%' },
+    { name: 'Phase-5', label: 'Phase 5', top: '10%', left: '74%' },
   ];
 
   const getPhaseData = (phaseName: string) =>
