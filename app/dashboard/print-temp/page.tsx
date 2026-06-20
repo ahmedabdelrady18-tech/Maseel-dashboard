@@ -153,7 +153,14 @@ export default function PrintReport() {
 
   const criticalLookahead = lookahead.filter((r: any) => isCritical(r.Critical));
   const criticalActivities = activities.filter((r: any) => isCritical(r.Critical));
+const blFinish = new Date(overall['BL Finish Date']);
+const forecastFinish = new Date(overall['Forecast Finish Date']);
 
+const finishVarianceDays =
+  Math.round(
+    (forecastFinish.getTime() - blFinish.getTime()) /
+    (1000 * 60 * 60 * 24)
+  );
   return (
     <div className="print-report">
       <div className="print-cover">
@@ -184,7 +191,10 @@ export default function PrintReport() {
           <div><span>Project Health</span><strong>{healthScore}/100</strong></div>
           <div><span>Health Status</span><strong>{projectHealth}</strong></div>
           <div><span>Overall SPI</span><strong>{overallSpi.toFixed(2)}</strong></div>
-          <div><span>Finish Variance</span><strong>{formatValue(overall['Variance Finish Date'])} Days</strong></div>
+        <div>
+  <span>Finish Variance</span>
+  <strong>{finishVarianceDays} Days</strong>
+</div>
         </div>
 
         <div className="print-kpi-grid">
