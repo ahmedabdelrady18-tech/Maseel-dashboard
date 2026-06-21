@@ -365,6 +365,14 @@ const finishVarianceDays = getDaysVariance();
   const actualValue = Number(selectedPhase?.['Actual %'] || 0);
   const plannedValue = Number(selectedPhase?.['Planned %'] || 0);
   const spiValue = Number(selectedPhase?.SPI || 0);
+  const varianceValue = Number(selectedPhase?.Variance || 0);
+
+const varianceColor =
+  varianceValue > 0
+    ? BRAND.green
+    : varianceValue < 0
+    ? BRAND.red
+    : BRAND.cyan;
 
   function phaseRiskScore(phase: any) {
     const spi = Number(phase.SPI || 0);
@@ -497,22 +505,29 @@ const finishVarianceDays = getDaysVariance();
     );
   };
 
-  const MiniBars = () => (
-    <div style={{ display: 'flex', alignItems: 'end', gap: 4, height: 38 }}>
-      {[16, 23, 14, 30, 39, 25, 48].map((h, i) => (
-        <span
-          key={i}
-          style={{
-            width: 5,
-            height: h,
-            borderRadius: 4,
-            background: BRAND.red,
-            opacity: 0.88,
-          }}
-        />
-      ))}
-    </div>
-  );
+  const MiniBars = ({ color }: any) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'end',
+      gap: 4,
+      height: 38,
+    }}
+  >
+    {[16, 23, 14, 30, 39, 25, 48].map((h, i) => (
+      <span
+        key={i}
+        style={{
+          width: 5,
+          height: h,
+          borderRadius: 4,
+          background: color,
+          opacity: .88,
+        }}
+      />
+    ))}
+  </div>
+);
 
   const DonutChart = () => {
     const safeTotal = Math.max(total, 1);
@@ -1275,11 +1290,17 @@ const finishVarianceDays = getDaysVariance();
             <div className="card" style={{ ...glassCard, minHeight: 122 }}>
               <div>
                 <div className="kpi-title">Variance %</div>
-                <div className="kpi-value status-bad" style={{ fontSize: 24, color: BRAND.red }}>
+               <div
+  className="kpi-value"
+  style={{
+    fontSize: 24,
+    color: varianceColor,
+  }}
+>
                   {pct(selectedPhase.Variance)}
                 </div>
               </div>
-              <MiniBars />
+              <MiniBars color={varianceColor} />
             </div>
 
             <div className="card" style={{ ...glassCard, minHeight: 122 }}>
