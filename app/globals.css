@@ -1368,3 +1368,79 @@ select.input {
     transform: scale(1.18);
   }
 }
+.masterplan-wave {
+  position: absolute;
+  top: -30%;
+  left: -60%;
+  width: 45%;
+  height: 160%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(186, 209, 223, 0.10),
+    rgba(98, 214, 255, 0.18),
+    rgba(186, 209, 223, 0.10),
+    transparent
+  );
+  transform: rotate(18deg);
+  filter: blur(10px);
+  animation: masterplanWaveMove 9s ease-in-out infinite;
+}
+
+@keyframes masterplanWaveMove {
+  0% {
+    left: -65%;
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.65;
+  }
+
+  55% {
+    opacity: 0.45;
+  }
+
+  100% {
+    left: 120%;
+    opacity: 0;
+  }
+}
+.masterplan-wave {
+  position: absolute;
+  top: -35%;
+  left: -65%;
+  width: 42%;
+  height: 170%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(186, 209, 223, 0.08),
+    rgba(98, 214, 255, 0.16),
+    rgba(186, 209, 223, 0.08),
+    transparent
+  );
+  transform: rotate(18deg);
+  filter: blur(12px);
+  animation: masterplanWaveMove 8s ease-in-out infinite;
+}
+
+@keyframes masterplanWaveMove {
+  0% {
+    left: -70%;
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.65;
+  }
+
+  65% {
+    opacity: 0.45;
+  }
+
+  100% {
+    left: 125%;
+    opacity: 0;
+  }
+}

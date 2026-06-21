@@ -281,6 +281,7 @@ export default function Dashboard() {
 const [draggingStatus, setDraggingStatus] = useState(false);
 const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 const [statusExpanded, setStatusExpanded] = useState(false);
+const [mapTilt, setMapTilt] = useState({ x: 0, y: 0 });
 useEffect(() => {
   const handleMove = (e: MouseEvent) => {
     if (!draggingStatus) return;
@@ -916,8 +917,23 @@ const varianceColor =
             </div>
           </div>
 
-          <div style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
+          <div
+  onMouseMove={(e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width - 0.1) * 0;
+    const y = ((e.clientY - rect.top) / rect.height - 0.1) * -0;
+    setMapTilt({ x, y });
+  }}
+  onMouseLeave={() => setMapTilt({ x: 0, y: 0 })}
+  style={{
+    position: 'relative',
+    width: '100%',
+    margin: '0 auto',
+    perspective: 1200,
+  }}
+>
             <img
+            
               src="/maseel-masterplan.jpg.png"
               alt="Maseel Masterplan"
               style={{
@@ -926,8 +942,23 @@ const varianceColor =
                 borderRadius: 18,
                 border: `1px solid ${BRAND.border}`,
                 boxShadow: '0 16px 34px rgba(0,0,0,.22)',
+                transform: `rotateY(${mapTilt.x}deg) rotateX(${mapTilt.y}deg)`,
+transition: 'transform .18s ease-out',
+transformStyle: 'preserve-3d',
               }}
             />
+            <div
+  style={{
+    position: 'absolute',
+    inset: 0,
+    borderRadius: 18,
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    zIndex: 2,
+  }}
+>
+  <div className="masterplan-wave" />
+</div>
                 <svg
   viewBox="0 0 100 100"
   preserveAspectRatio="none"
