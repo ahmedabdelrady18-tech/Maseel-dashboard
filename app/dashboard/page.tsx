@@ -1631,12 +1631,12 @@ const varianceColor =
         />
 
         <ExecCard
-          title="Finish Variance"
-          value={`${o['Variance Finish Date']} Days`}
-          icon="⏱️"
-          color={BRAND.red}
-          trend="Delay impact"
-        />
+  title="Finish Variance"
+  value={`${finishVarianceDays} Days`}
+  icon="⏱️"
+  color={finishVarianceDays <= 0 ? BRAND.green : BRAND.red}
+  trend={finishVarianceDays <= 0 ? "On Schedule" : "Delay impact"}
+/>
 
         <ExecCard
           title="Remaining Time"
