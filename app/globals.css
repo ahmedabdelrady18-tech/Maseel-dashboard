@@ -1339,10 +1339,32 @@ select.input {
 
 @keyframes executiveDashMove {
   from {
-    stroke-dashoffset: 10;
+    stroke-dashoffset: 0;
   }
 
   to {
     stroke-dashoffset: -40;
+  }
+}
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+@keyframes glassGlow {
+  0%, 100% {
+    opacity: .45;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: .9;
+    transform: scale(1.18);
   }
 }

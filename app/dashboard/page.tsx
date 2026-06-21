@@ -1,7 +1,7 @@
 'use client';
 
 import { pct, useDashboardData } from '@/components/DataClient';
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import {
   ComposedChart,
   Bar,
@@ -277,7 +277,32 @@ const SPITrend = ({ data }: any) => {
 export default function Dashboard() {
   const { data, error, loading } = useDashboardData();
   const [selectedPhase, setSelectedPhase] = useState<any>(null);
+  const [statusBoxPos, setStatusBoxPos] = useState({ x: 900, y: 18 });
+const [draggingStatus, setDraggingStatus] = useState(false);
+const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+const [statusExpanded, setStatusExpanded] = useState(false);
+useEffect(() => {
+  const handleMove = (e: MouseEvent) => {
+    if (!draggingStatus) return;
 
+    setStatusBoxPos({
+      x: e.clientX - dragOffset.x,
+      y: e.clientY - dragOffset.y,
+    });
+  };
+
+  const handleUp = () => {
+    setDraggingStatus(false);
+  };
+
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleUp);
+
+  return () => {
+    window.removeEventListener('mousemove', handleMove);
+    window.removeEventListener('mouseup', handleUp);
+  };
+}, [draggingStatus, dragOffset]);
   if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p className="error">{error}</p>;
 
@@ -914,18 +939,77 @@ const finishVarianceDays = getDaysVariance();
   />
 </svg>
 <div
+  onMouseDown={(e) => {
+    setDraggingStatus(true);
+    setDragOffset({
+      x: e.clientX - statusBoxPos.x,
+      y: e.clientY - statusBoxPos.y,
+    });
+  }}
+    onDoubleClick={() => setStatusExpanded((v) => !v)}
+ 
+ style={{
+  position: 'absolute',
+  top: statusBoxPos.y,
+  left: statusBoxPos.x,
+  width: statusExpanded ? 340 : 180,
+  padding: statusExpanded ? 20 : 12,
+  borderRadius: 28,
+
+  background:
+    'linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.04) 45%, rgba(10,22,34,.82))',
+
+  backdropFilter: 'blur(24px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+
+  border: '1px solid rgba(255,255,255,.28)',
+
+  boxShadow: `
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -20px 45px rgba(255,255,255,.04),
+    0 24px 60px rgba(0,0,0,.42),
+    0 0 38px ${healthColor}55
+  `,
+
+  zIndex: 30,
+  cursor: draggingStatus ? 'grabbing' : 'grab',
+  userSelect: 'none',
+  overflow: 'hidden',
+  transition: draggingStatus ? 'none' : 'all .35s cubic-bezier(.2,.8,.2,1)',
+}}
+>
+  <div
   style={{
     position: 'absolute',
-    top: 18,
-    right: 18,
-    width: 150,
-    padding: 4,
-    borderRadius: 15,
-    background: 'rgba(20, 34, 48, 0.68)',
-    backdropFilter: 'blur(16px)',
-    border: '1px solid rgba(186,209,223,.22)',
-    boxShadow: '0 18px 40px rgba(0,0,0,.28)',
-    zIndex: 4,
+    inset: 0,
+    borderRadius: 28,
+    background:
+      'linear-gradient(120deg, rgba(255,255,255,.28), transparent 28%, transparent 70%, rgba(255,255,255,.10))',
+    pointerEvents: 'none',
+  }}
+/>
+
+<div
+  style={{
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    right: -55,
+    top: -55,
+    borderRadius: '50%',
+    background: `${healthColor}33`,
+    filter: 'blur(28px)',
+    pointerEvents: 'none',
+    animation: 'glassGlow 4s ease-in-out infinite',
+  }}
+/>
+ <div
+  style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
   }}
 >
   <div
@@ -934,11 +1018,32 @@ const finishVarianceDays = getDaysVariance();
       letterSpacing: 2.4,
       color: BRAND.light,
       textTransform: 'uppercase',
-      marginBottom: 8,
     }}
   >
     Overall Project Status
   </div>
+
+  <button
+    onMouseDown={(e) => e.stopPropagation()}
+    onClick={(e) => {
+      e.stopPropagation();
+      setStatusExpanded((v) => !v);
+    }}
+    style={{
+      width: 20,
+      height: 20,
+      borderRadius: '50%',
+      border: '1px solid rgba(186,209,223,.3)',
+      background: 'rgba(255,255,255,.08)',
+      color: '#fff',
+      cursor: 'pointer',
+      fontWeight: 900,
+      fontSize: 14,
+    }}
+  >
+    {statusExpanded ? '−' : '+'}
+  </button>
+</div>
 
   <div
     style={{
@@ -973,7 +1078,63 @@ const finishVarianceDays = getDaysVariance();
       </div>
     </div>
   </div>
+{statusExpanded && (
+  <div
+    style={{
+      marginTop: 12,
+      paddingTop: 10,
+      borderTop: '1px solid rgba(186,209,223,.18)',
+      display: 'grid',
+      gap: 8,
+      animation: 'fadeUp .35s ease',
+    }}
+  >
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
+      <span style={{ color: BRAND.light, fontSize: 11 }}>
+        Critical Focus
+      </span>
 
+      <strong style={{ color: '#ff6868' }}>
+        {mostCriticalPhase?.Phase || 'N/A'}
+      </strong>
+    </div>
+
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
+      <span style={{ color: BRAND.light, fontSize: 11 }}>
+        Recovery Status
+      </span>
+
+      <strong style={{ color: '#4cff88' }}>
+        ACTIVE
+      </strong>
+    </div>
+
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
+      <span style={{ color: BRAND.light, fontSize: 11 }}>
+        Remaining Time
+      </span>
+
+      <strong style={{ color: BRAND.cyan }}>
+        {o['Remaining Time']} Days
+      </strong>
+    </div>
+  </div>
+)}
   <div
   >
   </div>
