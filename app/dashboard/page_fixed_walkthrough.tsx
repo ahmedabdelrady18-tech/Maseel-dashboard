@@ -204,6 +204,7 @@ const SCurve = ({ data, overallSpi }: any) => {
     </>
   );
 };
+
 const SPITrend = ({ data }: any) => {
   const formatMonth = (value: any) => {
     const text = String(value || '');
@@ -218,8 +219,7 @@ const SPITrend = ({ data }: any) => {
 
     return text;
   };
-
-  const chartData = (data || [])
+    const chartData = (data || [])
     .filter((row: any) => row.spi !== null && row.spi !== undefined && row.spi !== '')
     .map((row: any) => ({
       month: formatMonth(row.month),
@@ -276,50 +276,45 @@ const SPITrend = ({ data }: any) => {
 
 export default function Dashboard() {
   const { data, error, loading } = useDashboardData();
-
   const [selectedPhase, setSelectedPhase] = useState<any>(null);
   const [statusBoxPos, setStatusBoxPos] = useState({ x: 900, y: 18 });
-  const [draggingStatus, setDraggingStatus] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [statusExpanded, setStatusExpanded] = useState(false);
+const [draggingStatus, setDraggingStatus] = useState(false);
+const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+const [statusExpanded, setStatusExpanded] = useState(false);
+const [walkthroughActive, setWalkthroughActive] = useState(false);
+const [walkthroughPlaying, setWalkthroughPlaying] = useState(false);
+const [currentStep, setCurrentStep] = useState(0);
+useEffect(() => {
+  const handleMove = (e: MouseEvent) => {
+    if (!draggingStatus) return;
 
-  const [walkthroughActive, setWalkthroughActive] = useState(false);
-  const [walkthroughPlaying, setWalkthroughPlaying] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+    setStatusBoxPos({
+      x: e.clientX - dragOffset.x,
+      y: e.clientY - dragOffset.y,
+    });
+  };
 
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      if (!draggingStatus) return;
+  const handleUp = () => {
+    setDraggingStatus(false);
+  };
 
-      setStatusBoxPos({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y,
-      });
-    };
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleUp);
 
-    const handleUp = () => {
-      setDraggingStatus(false);
-    };
+  return () => {
+    window.removeEventListener('mousemove', handleMove);
+    window.removeEventListener('mouseup', handleUp);
+  };
+}, [draggingStatus, dragOffset]);
+useEffect(() => {
+  if (!walkthroughPlaying) return;
 
-    window.addEventListener('mousemove', handleMove);
-    window.addEventListener('mouseup', handleUp);
+  const timer = window.setInterval(() => {
+    setCurrentStep((prev) => (prev + 1) % 5);
+  }, 3200);
 
-    return () => {
-      window.removeEventListener('mousemove', handleMove);
-      window.removeEventListener('mouseup', handleUp);
-    };
-  }, [draggingStatus, dragOffset]);
-
-  useEffect(() => {
-    if (!walkthroughPlaying) return;
-
-    const timer = window.setInterval(() => {
-      setCurrentStep((prev) => (prev + 1) % 5);
-    }, 3200);
-
-    return () => window.clearInterval(timer);
-  }, [walkthroughPlaying]);
-
+  return () => window.clearInterval(timer);
+}, [walkthroughPlaying]);
   if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p className="error">{error}</p>;
 
@@ -334,20 +329,19 @@ export default function Dashboard() {
     { name: 'Phase-4', label: 'Phase 4', top: '54%', left: '47%' },
     { name: 'Phase-5', label: 'Phase 5', top: '10%', left: '74%' },
   ];
-
   const walkthroughViews = [
-    { scale: 1.9, x: -8, y: 18 },
-    { scale: 1.9, x: 18, y: -22 },
-    { scale: 1.9, x: -14, y: 7 },
-    { scale: 1.85, x: 3, y: -8 },
-    { scale: 1.9, x: -28, y: 28 },
-  ];
+  { scale: 1.9, x: -8, y: 18 },
+  { scale: 1.9, x: 18, y: -22 },
+  { scale: 1.9, x: -14, y: 7 },
+  { scale: 1.85, x: 3, y: -8 },
+  { scale: 1.9, x: -28, y: 28 },
+];
 
-  const walkthroughPhase = phaseList[currentStep] || phaseList[0];
+const walkthroughPhase = phaseList[currentStep] || phaseList[0];
 
-  const walkthroughTransform = walkthroughActive
-    ? `scale(${walkthroughViews[currentStep].scale}) translate(${walkthroughViews[currentStep].x}%, ${walkthroughViews[currentStep].y}%)`
-    : 'scale(1) translate(0%, 0%)';
+const walkthroughTransform = walkthroughActive
+  ? `scale(${walkthroughViews[currentStep].scale}) translate(${walkthroughViews[currentStep].x}%, ${walkthroughViews[currentStep].y}%)`
+  : 'scale(1) translate(0%, 0%)';
 
   const getPhaseData = (phaseName: string) =>
     phases.find((x: any) => x.Phase === phaseName) || null;
@@ -379,32 +373,35 @@ export default function Dashboard() {
   const critical = phases.filter((x: any) => Number(x.SPI || 0) < 0.9).length;
 
   const overallSpi = Number(o.SPI || 0);
-
   const getDaysVariance = () => {
-    const bl = new Date(o['BL Finish Date']);
-    const forecast = new Date(o['Forecast Finish Date']);
+  const bl = new Date(o['BL Finish Date']);
+  const forecast = new Date(o['Forecast Finish Date']);
 
-    if (isNaN(bl.getTime()) || isNaN(forecast.getTime())) {
-      return Number(o['Variance Finish Date'] || 0);
-    }
+  if (isNaN(bl.getTime()) || isNaN(forecast.getTime())) {
+    return Number(o['Variance Finish Date'] || 0);
+  }
 
-    const diff = forecast.getTime() - bl.getTime();
-    return Math.round(diff / (1000 * 60 * 60 * 24));
-  };
+  const diff = forecast.getTime() - bl.getTime();
+  return Math.round(diff / (1000 * 60 * 60 * 24));
+};
 
-  const finishVarianceDays = getDaysVariance();
+const finishVarianceDays = getDaysVariance();
 
   const actualValue = Number(selectedPhase?.['Actual %'] || 0);
   const plannedValue = Number(selectedPhase?.['Planned %'] || 0);
   const spiValue = Number(selectedPhase?.SPI || 0);
+  const varianceValue = Number(selectedPhase?.Variance || 0);
 
-  const varianceValue = actualValue - plannedValue;
+const varianceColor =
+  varianceValue > 0
+    ? BRAND.green
+    : varianceValue < 0
+    ? BRAND.red
+    : BRAND.cyan;
 
-  const varianceColor =
-    varianceValue > 0 ? BRAND.green : varianceValue < 0 ? BRAND.red : BRAND.cyan;
-      function phaseRiskScore(phase: any) {
-    const spi = Number(phase?.SPI || 0);
-    const variance = Math.abs(Number(phase?.Variance || 0));
+  function phaseRiskScore(phase: any) {
+    const spi = Number(phase.SPI || 0);
+    const variance = Math.abs(Number(phase.Variance || 0));
 
     const spiRisk = spi > 0 ? (1 - spi) * 100 : 100;
     const varianceRisk = variance * 100;
@@ -492,8 +489,7 @@ export default function Dashboard() {
       </div>
     );
   };
-
-  const Gauge = ({ value }: any) => {
+    const Gauge = ({ value }: any) => {
     const max = 1.5;
     const safeValue = Math.min(Number(value || 0), max);
     const percent = (safeValue / max) * 100;
@@ -535,28 +531,28 @@ export default function Dashboard() {
   };
 
   const MiniBars = ({ color }: any) => (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'end',
-        gap: 4,
-        height: 38,
-      }}
-    >
-      {[16, 23, 14, 30, 39, 25, 48].map((h, i) => (
-        <span
-          key={i}
-          style={{
-            width: 5,
-            height: h,
-            borderRadius: 4,
-            background: color,
-            opacity: 0.88,
-          }}
-        />
-      ))}
-    </div>
-  );
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'end',
+      gap: 4,
+      height: 38,
+    }}
+  >
+    {[16, 23, 14, 30, 39, 25, 48].map((h, i) => (
+      <span
+        key={i}
+        style={{
+          width: 5,
+          height: h,
+          borderRadius: 4,
+          background: color,
+          opacity: .88,
+        }}
+      />
+    ))}
+  </div>
+);
 
   const DonutChart = () => {
     const safeTotal = Math.max(total, 1);
@@ -646,7 +642,8 @@ export default function Dashboard() {
       {spark && <div style={{ marginTop: 10 }}>{spark}</div>}
     </div>
   );
-    const RecoveryPanel = () => (
+
+  const RecoveryPanel = () => (
     <div
       className="card"
       style={{
@@ -817,8 +814,7 @@ export default function Dashboard() {
       </div>
     </div>
   );
-
-  return (
+    return (
     <>
       <div
         className="card section"
@@ -884,7 +880,7 @@ export default function Dashboard() {
             title="Overall SPI"
             value={overallSpi.toFixed(2)}
             icon="⚡"
-            color={overallSpi >= 0.95 ? BRAND.green : overallSpi >= 0.8 ? BRAND.yellow : BRAND.red}
+            color={overallSpi >= .95 ? BRAND.green : overallSpi >= 0.8 ? BRAND.yellow : BRAND.red}
             trend={overallSpi >= 1 ? 'Healthy schedule' : 'Schedule pressure'}
           />
 
@@ -893,7 +889,7 @@ export default function Dashboard() {
             value={`${finishVarianceDays} Days`}
             icon="⏱️"
             color={finishVarianceDays <= 0 ? BRAND.green : BRAND.red}
-            trend={finishVarianceDays <= 0 ? 'On Schedule' : 'Delay impact'}
+            trend="Delay impact"
           />
         </div>
       </div>
@@ -941,10 +937,11 @@ export default function Dashboard() {
                 lineHeight: 1.7,
               }}
             >
-              Click any phase marker or start the cinematic walkthrough.
+              Click any phase marker to open the performance and recovery control panel.
             </div>
           </div>
-                    <div
+
+          <div
             style={{
               position: 'relative',
               width: '100%',
@@ -1178,10 +1175,7 @@ export default function Dashboard() {
                 >
                   {[
                     ['Prev', () => setCurrentStep((v) => (v + 4) % 5)],
-                    [
-                      walkthroughPlaying ? 'Pause' : 'Play',
-                      () => setWalkthroughPlaying((v) => !v),
-                    ],
+                    [walkthroughPlaying ? 'Pause' : 'Play', () => setWalkthroughPlaying((v) => !v)],
                     ['Next', () => setCurrentStep((v) => (v + 1) % 5)],
                     [
                       'Close',
@@ -1212,7 +1206,8 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
-                        <div
+
+            <div
               onMouseDown={(e) => {
                 setDraggingStatus(true);
                 setDragOffset({
@@ -1272,7 +1267,12 @@ export default function Dashboard() {
                 }}
               />
 
-              <div style={{ position: 'relative', zIndex: 2 }}>
+              <div
+                style={{
+                  position: 'relative',
+                  zIndex: 2,
+                }}
+              >
                 <div
                   style={{
                     display: 'flex',
@@ -1394,11 +1394,7 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {selectedPhase && (
+          </div>      {selectedPhase && (
         <div
           style={{
             marginTop: 18,
@@ -1486,14 +1482,14 @@ export default function Dashboard() {
             <div className="card" style={{ ...glassCard, minHeight: 122 }}>
               <div>
                 <div className="kpi-title">Variance %</div>
-                <div
-                  className="kpi-value"
-                  style={{
-                    fontSize: 24,
-                    color: varianceColor,
-                  }}
-                >
-                  {pct(varianceValue)}
+               <div
+  className="kpi-value"
+  style={{
+    fontSize: 24,
+    color: varianceColor,
+  }}
+>
+                  {pct(selectedPhase.Variance)}
                 </div>
               </div>
               <MiniBars color={varianceColor} />
@@ -1526,13 +1522,7 @@ export default function Dashboard() {
               >
                 {getPhaseStatus(selectedPhase.Phase)}
               </div>
-              <div
-                style={{
-                  fontSize: 30,
-                  color: getPhaseColor(selectedPhase.Phase),
-                  marginTop: 4,
-                }}
-              >
+              <div style={{ fontSize: 30, color: getPhaseColor(selectedPhase.Phase), marginTop: 4 }}>
                 {getPhaseStatus(selectedPhase.Phase) === 'On Track'
                   ? '✓'
                   : getPhaseStatus(selectedPhase.Phase) === 'Warning'
@@ -1545,8 +1535,7 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-
-      <div
+            <div
         className="section"
         style={{
           display: 'grid',
@@ -1556,7 +1545,9 @@ export default function Dashboard() {
       >
         <div className="card" style={glassCard}>
           <h3 style={{ marginTop: 0, color: BRAND.cyan }}>Phase Status Distribution</h3>
+
           <DonutChart />
+
           <div
             style={{
               display: 'flex',
@@ -1573,16 +1564,20 @@ export default function Dashboard() {
 
         <div className="card" style={glassCard}>
           <h3 style={{ marginTop: 0, color: BRAND.cyan }}>Critical Phase</h3>
+
           <div style={{ fontSize: 30, fontWeight: 900, color: BRAND.red }}>
             {mostCriticalPhase?.Phase || 'N/A'}
           </div>
+
           <div className="small" style={{ marginTop: 8 }}>
             SPI: {Number(mostCriticalPhase?.SPI || 0).toFixed(2)} | Variance:{' '}
             {pct(mostCriticalPhase?.Variance || 0)}
           </div>
+
           <div className="small" style={{ marginTop: 6 }}>
             Risk Score: {phaseRiskScore(mostCriticalPhase || {}).toFixed(1)}
           </div>
+
           <div style={{ marginTop: 12, color: '#ffd1d1', fontSize: 13 }}>
             Recovery actions are recommended and should remain under weekly monitoring.
           </div>
@@ -1590,7 +1585,15 @@ export default function Dashboard() {
 
         <div className="card" style={glassCard}>
           <h3 style={{ marginTop: 0, color: BRAND.cyan }}>Executive Alerts</h3>
-          <div style={{ display: 'grid', gap: 9, fontSize: 13, color: BRAND.text }}>
+
+          <div
+            style={{
+              display: 'grid',
+              gap: 9,
+              fontSize: 13,
+              color: BRAND.text,
+            }}
+          >
             <div
               style={{
                 padding: 9,
@@ -1718,10 +1721,37 @@ export default function Dashboard() {
           gap: 12,
         }}
       >
-        <ExecCard title="Total Phases" value={total} icon="🏢" color={BRAND.cyan} trend="Project scope" />
-        <ExecCard title="On Track" value={onTrack} icon="✅" color={BRAND.green} trend="SPI ≥ 1.00" />
-        <ExecCard title="Warning" value={warning} icon="⚠️" color={BRAND.yellow} trend="Needs monitoring" />
-        <ExecCard title="Critical" value={critical} icon="🚨" color={BRAND.red} trend="Immediate action" />
+        <ExecCard
+          title="Total Phases"
+          value={total}
+          icon="🏢"
+          color={BRAND.cyan}
+          trend="Project scope"
+        />
+
+        <ExecCard
+          title="On Track"
+          value={onTrack}
+          icon="✅"
+          color={BRAND.green}
+          trend="SPI ≥ 1.00"
+        />
+
+        <ExecCard
+          title="Warning"
+          value={warning}
+          icon="⚠️"
+          color={BRAND.yellow}
+          trend="Needs monitoring"
+        />
+
+        <ExecCard
+          title="Critical"
+          value={critical}
+          icon="🚨"
+          color={BRAND.red}
+          trend="Immediate action"
+        />
       </div>
 
       <div
@@ -1732,13 +1762,43 @@ export default function Dashboard() {
           gap: 12,
         }}
       >
-        <ExecCard title="Planned Progress" value={pct(o['Planned %'])} icon="🎯" color={BRAND.light} trend="↑ Baseline" spark={<Sparkline color={BRAND.light} />} />
-        <ExecCard title="Actual Progress" value={pct(o['Actual %'])} icon="📈" color={BRAND.cyan} trend="↑ Current" spark={<Sparkline color={BRAND.cyan} />} />
-        <ExecCard title="Variance" value={pct(o['Variance %'])} icon="📉" color={BRAND.red} trend="↓ Behind plan" spark={<Sparkline color={BRAND.red} />} />
-        <ExecCard title="Overall SPI" value={overallSpi.toFixed(2)} icon="⚡" color={healthColor} trend="Schedule index" spark={<Sparkline color={healthColor} />} />
-      </div>
+        <ExecCard
+          title="Planned Progress"
+          value={pct(o['Planned %'])}
+          icon="🎯"
+          color={BRAND.light}
+          trend="↑ Baseline"
+          spark={<Sparkline color={BRAND.light} />}
+        />
 
-      <div
+        <ExecCard
+          title="Actual Progress"
+          value={pct(o['Actual %'])}
+          icon="📈"
+          color={BRAND.cyan}
+          trend="↑ Current"
+          spark={<Sparkline color={BRAND.cyan} />}
+        />
+
+        <ExecCard
+          title="Variance"
+          value={pct(o['Variance %'])}
+          icon="📉"
+          color={BRAND.red}
+          trend="↓ Behind plan"
+          spark={<Sparkline color={BRAND.red} />}
+        />
+
+        <ExecCard
+          title="Overall SPI"
+          value={overallSpi.toFixed(2)}
+          icon="⚡"
+          color={healthColor}
+          trend="Schedule index"
+          spark={<Sparkline color={healthColor} />}
+        />
+      </div>
+            <div
         className="section"
         style={{
           display: 'grid',
@@ -1746,10 +1806,37 @@ export default function Dashboard() {
           gap: 12,
         }}
       >
-        <ExecCard title="BL Finish" value={o['BL Finish Date']} icon="📅" color={BRAND.light} trend="Contract baseline" />
-        <ExecCard title="Forecast Finish" value={o['Forecast Finish Date']} icon="📈" color={BRAND.yellow} trend="Updated forecast" />
-        <ExecCard title="Finish Variance" value={`${finishVarianceDays} Days`} icon="⏱️" color={finishVarianceDays <= 0 ? BRAND.green : BRAND.red} trend={finishVarianceDays <= 0 ? 'On Schedule' : 'Delay impact'} />
-        <ExecCard title="Remaining Time" value={`${o['Remaining Time']} Days`} icon="⌛" color={BRAND.cyan} trend="To completion" />
+        <ExecCard
+          title="BL Finish"
+          value={o['BL Finish Date']}
+          icon="📅"
+          color={BRAND.light}
+          trend="Contract baseline"
+        />
+
+        <ExecCard
+          title="Forecast Finish"
+          value={o['Forecast Finish Date']}
+          icon="📈"
+          color={BRAND.yellow}
+          trend="Updated forecast"
+        />
+
+        <ExecCard
+  title="Finish Variance"
+  value={`${finishVarianceDays} Days`}
+  icon="⏱️"
+  color={finishVarianceDays <= 0 ? BRAND.green : BRAND.red}
+  trend={finishVarianceDays <= 0 ? "On Schedule" : "Delay impact"}
+/>
+
+        <ExecCard
+          title="Remaining Time"
+          value={`${o['Remaining Time']} Days`}
+          icon="⌛"
+          color={BRAND.cyan}
+          trend="To completion"
+        />
       </div>
 
       <div className="card section" style={glassCard}>
@@ -1759,7 +1846,8 @@ export default function Dashboard() {
           const actual = Number(ph['Actual %'] || 0);
           const planned = Number(ph['Planned %'] || 0);
 
-          const ratio = planned > 0 ? Math.min((actual / planned) * 100, 100) : 0;
+          const ratio =
+            planned > 0 ? Math.min((actual / planned) * 100, 100) : 0;
 
           const color =
             ratio >= 95 ? BRAND.green : ratio >= 80 ? BRAND.yellow : BRAND.red;
