@@ -379,6 +379,13 @@ export default function Dashboard() {
   const critical = phases.filter((x: any) => Number(x.SPI || 0) < 0.9).length;
 
   const overallSpi = Number(o.SPI || 0);
+  const overallVariance = Number(o['Variance %'] || 0);
+
+const overallVarianceColor =
+  overallVariance >= 0 ? BRAND.green : BRAND.red;
+
+const overallVarianceTrend =
+  overallVariance >= 0 ? '↑ Ahead of plan' : '↓ Behind plan';
 
   const getDaysVariance = () => {
     const bl = new Date(o['BL Finish Date']);
@@ -1734,7 +1741,14 @@ export default function Dashboard() {
       >
         <ExecCard title="Planned Progress" value={pct(o['Planned %'])} icon="🎯" color={BRAND.light} trend="↑ Baseline" spark={<Sparkline color={BRAND.light} />} />
         <ExecCard title="Actual Progress" value={pct(o['Actual %'])} icon="📈" color={BRAND.cyan} trend="↑ Current" spark={<Sparkline color={BRAND.cyan} />} />
-        <ExecCard title="Variance" value={pct(o['Variance %'])} icon="📉" color={BRAND.red} trend="↓ Behind plan" spark={<Sparkline color={BRAND.red} />} />
+        <ExecCard
+  title="Variance"
+  value={pct(overallVariance)}
+  icon={overallVariance >= 0 ? '📈' : '📉'}
+  color={overallVarianceColor}
+  trend={overallVarianceTrend}
+  spark={<Sparkline color={overallVarianceColor} />}
+/>
         <ExecCard title="Overall SPI" value={overallSpi.toFixed(2)} icon="⚡" color={healthColor} trend="Schedule index" spark={<Sparkline color={healthColor} />} />
       </div>
 
