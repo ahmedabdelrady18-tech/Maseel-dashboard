@@ -355,7 +355,7 @@ export default function Dashboard() {
   const getPhaseColor = (phaseName: string) => {
     const spi = Number(getPhaseData(phaseName)?.SPI || 0);
 
-    if (spi >= 1) return BRAND.green;
+    if (spi >= 0.96) return BRAND.green;
     if (spi >= 0.9) return BRAND.yellow;
     return BRAND.red;
   };
@@ -363,17 +363,17 @@ export default function Dashboard() {
   const getPhaseStatus = (phaseName: string) => {
     const spi = Number(getPhaseData(phaseName)?.SPI || 0);
 
-    if (spi >= 1) return 'On Track';
+    if (spi >= 0.96) return 'On Track';
     if (spi >= 0.9) return 'Warning';
     return 'Critical';
   };
 
   const total = phases.length;
 
-  const onTrack = phases.filter((x: any) => Number(x.SPI || 0) >= 1).length;
+  const onTrack = phases.filter((x: any) => Number(x.SPI || 0) >= .96).length;
 
   const warning = phases.filter(
-    (x: any) => Number(x.SPI || 0) >= 0.9 && Number(x.SPI || 0) < 1
+    (x: any) => Number(x.SPI || 0) >= 0.9 && Number(x.SPI || 0) < .96
   ).length;
 
   const critical = phases.filter((x: any) => Number(x.SPI || 0) < 0.9).length;
