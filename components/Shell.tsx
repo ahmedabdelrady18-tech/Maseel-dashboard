@@ -43,6 +43,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     ['/dashboard/risks', 'Risks'],
     ['/dashboard/photos', 'Photos'],
     ['/dashboard/print', 'Print Report'],
+    ['/dashboard/walkthrough', '3D Walkthrough'],
   ];
 
   const logoStrip: CSSProperties = {
