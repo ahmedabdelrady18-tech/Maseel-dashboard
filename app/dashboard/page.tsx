@@ -278,7 +278,7 @@ export default function Dashboard() {
   const { data, error, loading } = useDashboardData();
 
   const [selectedPhase, setSelectedPhase] = useState<any>(null);
-  const [statusBoxPos, setStatusBoxPos] = useState({ x: 900, y: 18 });
+  const [statusBoxPos, setStatusBoxPos] = useState({ x: 1050, y: 18 });
   const [draggingStatus, setDraggingStatus] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [statusExpanded, setStatusExpanded] = useState(false);
